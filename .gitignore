@@ -1,0 +1,28 @@
+# Ignore only full projects
+Project/
+
+# But keep small task/learning/research files tracked
+!Learning/
+!Task/
+!Research/
+
+# Secrets
+.env
+.env.*
+*.key
+*.pem
+
+# OS/editor junk
+.DS_Store
+Thumbs.db
+
+# Optional: ignore editor settings
+.vscode/
+.idea/
+
+# Runtime junk
+node_modules/
+.venv/
+__pycache__/
+*.log
+.cache/
