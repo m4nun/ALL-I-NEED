@@ -1,0 +1,1563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Isomorphism Theorems - Visual Explanation</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    :root {
+      --ink: #1a1a2e;
+      --ink-light: #4a4a68;
+      --accent: #e94560;
+      --ground: #fafafa;
+      --ground-alt: #f0f0f5;
+      --cat-1: #4e79a7;
+      --cat-2: #f28e2c;
+      --cat-3: #e15759;
+      --cat-4: #76b7b2;
+      --success: #59a14f;
+      --text-hero: 2rem;
+      --text-title: 1.25rem;
+      --text-label: 0.875rem;
+      --text-micro: 0.75rem;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--ground);
+      color: var(--ink);
+      line-height: 1.6;
+      padding: 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: var(--text-hero);
+      margin-bottom: 0.5rem;
+      color: var(--ink);
+    }
+
+    h2 {
+      font-size: var(--text-title);
+      margin: 2rem 0 1rem;
+      color: var(--ink);
+    }
+
+    h3 {
+      font-size: var(--text-label);
+      margin: 1.5rem 0 0.75rem;
+      color: var(--ink-light);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    p {
+      margin-bottom: 1rem;
+      max-width: 700px;
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      border: 0;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* Navigation */
+    .nav-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+      border-bottom: 2px solid var(--ground-alt);
+      padding-bottom: 0;
+    }
+
+    .nav-tab {
+      padding: 0.75rem 1.5rem;
+      background: var(--ground-alt);
+      border: none;
+      border-radius: 8px 8px 0 0;
+      cursor: pointer;
+      font-size: var(--text-label);
+      font-weight: 600;
+      color: var(--ink-light);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .nav-tab:hover {
+      background: #e0e0e8;
+      color: var(--ink);
+    }
+
+    .nav-tab.active {
+      background: var(--ink);
+      color: white;
+    }
+
+    .nav-tab:focus {
+      outline: 3px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    /* Section visibility */
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+      animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Visual containers */
+    .visual-container {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      margin: 1.5rem 0;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    .visual-title {
+      font-size: var(--text-title);
+      margin-bottom: 1rem;
+      color: var(--ink);
+    }
+
+    /* Group diagrams */
+    .group-diagram {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      margin: 1.5rem 0;
+    }
+
+    .group-box {
+      background: var(--ground-alt);
+      border-radius: 12px;
+      padding: 1.5rem;
+      position: relative;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .group-box:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+
+    .group-box.highlight {
+      border: 3px solid var(--accent);
+    }
+
+    .group-label {
+      font-size: var(--text-label);
+      font-weight: 700;
+      color: var(--ink-light);
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .elements {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .element {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: var(--text-label);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+    }
+
+    .element:focus {
+      outline: 3px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .element.cat-1 { background: var(--cat-1); color: white; }
+    .element.cat-2 { background: var(--cat-2); color: white; }
+    .element.cat-3 { background: var(--cat-3); color: white; }
+    .element.cat-4 { background: var(--cat-4); color: white; }
+    .element.kernel { background: var(--accent); color: white; }
+    .element.identity { background: var(--success); color: white; }
+
+    .element.highlight {
+      box-shadow: 0 0 0 4px var(--accent), 0 4px 15px rgba(233,69,96,0.4);
+      transform: scale(1.15);
+    }
+
+    .element:hover {
+      transform: scale(1.15);
+    }
+
+    .element.selected {
+      transform: scale(1.2);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .element.faded {
+      opacity: 0.3;
+    }
+
+    /* Arrows */
+    .arrow-container {
+      position: relative;
+      height: 60px;
+      margin: 1rem 0;
+    }
+
+    .arrow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80px;
+      height: 3px;
+      background: var(--ink-light);
+    }
+
+    .arrow::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      border-left: 10px solid var(--ink-light);
+      border-top: 6px solid transparent;
+      border-bottom: 6px solid transparent;
+    }
+
+    .arrow-label {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 0.25rem 0.5rem;
+      font-size: var(--text-micro);
+      color: var(--ink-light);
+    }
+
+    /* Coset visualization */
+    .coset-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin: 1.5rem 0;
+    }
+
+    .coset-box {
+      background: var(--ground-alt);
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+
+    .coset-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.75rem;
+      margin: 0.5rem 0;
+      background: white;
+      border-radius: 8px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+    }
+
+    .coset-row:hover {
+      background: var(--ground);
+      transform: translateX(5px);
+    }
+
+    .coset-row:focus {
+      outline: 3px solid var(--accent);
+    }
+
+    .coset-row.active {
+      background: var(--cat-1);
+      color: white;
+    }
+
+    .coset-label {
+      font-weight: 600;
+      min-width: 80px;
+    }
+
+    .coset-elements {
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .coset-element {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-micro);
+      font-weight: 600;
+      background: var(--cat-2);
+      color: white;
+    }
+
+    /* Mapping animation */
+    .mapping-container {
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2rem 0;
+      min-height: 400px;
+    }
+
+    .mapping-column {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      z-index: 2;
+    }
+
+    .mapping-column.domain {
+      align-items: flex-end;
+    }
+
+    .mapping-column.codomain {
+      align-items: flex-start;
+    }
+
+    .mapping-line {
+      position: absolute;
+      height: 2px;
+      background: var(--cat-1);
+      transform-origin: left center;
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+    }
+
+    .mapping-line.animate {
+      animation: drawLine 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    @keyframes drawLine {
+      from { width: 0; opacity: 0; }
+      to { width: var(--line-length); opacity: 1; }
+    }
+
+    .mapping-arrow {
+      position: absolute;
+      width: 0;
+      height: 0;
+      border-top: 6px solid transparent;
+      border-bottom: 6px solid transparent;
+      border-left: 10px solid var(--cat-1);
+      z-index: 2;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .mapping-arrow.visible {
+      opacity: 1;
+    }
+
+    /* Controls */
+    .controls {
+      display: flex;
+      gap: 1rem;
+      margin: 1.5rem 0;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      background: var(--ink);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: var(--text-label);
+      font-weight: 600;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn:hover {
+      background: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .btn:focus {
+      outline: 3px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .btn:disabled {
+      background: var(--ground-alt);
+      color: var(--ink-light);
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-secondary {
+      background: var(--ground-alt);
+      color: var(--ink);
+    }
+
+    .btn-secondary:hover {
+      background: #e0e0e8;
+    }
+
+    /* Step indicator */
+    .step-indicator {
+      display: flex;
+      gap: 0.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .step {
+      flex: 1;
+      height: 4px;
+      background: var(--ground-alt);
+      border-radius: 2px;
+      position: relative;
+    }
+
+    .step.active {
+      background: var(--cat-1);
+    }
+
+    .step.completed {
+      background: var(--success);
+    }
+
+    .step-number {
+      position: absolute;
+      top: -24px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: var(--text-micro);
+      font-weight: 600;
+      color: var(--ink-light);
+    }
+
+    /* Proof box */
+    .proof-box {
+      background: white;
+      border-left: 4px solid var(--cat-1);
+      padding: 1.5rem;
+      margin: 1rem 0;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .proof-step {
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--ground-alt);
+      opacity: 0.3;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .proof-step.active {
+      opacity: 1;
+      background: var(--ground-alt);
+      padding: 0.75rem;
+      border-radius: 8px;
+      margin: 0 -0.75rem;
+    }
+
+    .proof-step.completed {
+      opacity: 1;
+    }
+
+    .proof-label {
+      font-weight: 700;
+      color: var(--cat-1);
+      margin-bottom: 0.25rem;
+    }
+
+    /* Quotient visualization */
+    .quotient-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .quotient-cell {
+      background: var(--ground-alt);
+      border-radius: 12px;
+      padding: 1rem;
+      text-align: center;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+    }
+
+    .quotient-cell:hover {
+      transform: scale(1.05);
+      background: var(--cat-1);
+      color: white;
+    }
+
+    .quotient-cell:focus {
+      outline: 3px solid var(--accent);
+    }
+
+    .quotient-cell.highlight {
+      background: var(--cat-1);
+      color: white;
+    }
+
+    .quotient-label {
+      font-size: var(--text-label);
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .quotient-elements {
+      font-size: var(--text-micro);
+      color: var(--ink-light);
+    }
+
+    .quotient-cell:hover .quotient-elements {
+      color: rgba(255,255,255,0.8);
+    }
+
+    /* Info box */
+    .info-box {
+      background: #e8f4f8;
+      border: 1px solid #b8d4e8;
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 1rem 0;
+    }
+
+    .info-box-title {
+      font-weight: 700;
+      color: var(--cat-1);
+      margin-bottom: 0.5rem;
+    }
+
+    .info-box.warning {
+      background: #fff3cd;
+      border-color: #ffc107;
+    }
+
+    .info-box.success {
+      background: #d4edda;
+      border-color: #c3e6cb;
+    }
+
+    /* Theorem statement */
+    .theorem-box {
+      background: linear-gradient(135deg, var(--cat-1), var(--cat-4));
+      color: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin: 1.5rem 0;
+    }
+
+    .theorem-title {
+      font-size: var(--text-title);
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+    }
+
+    .theorem-statement {
+      font-size: var(--text-label);
+      line-height: 1.8;
+    }
+
+    .theorem-formula {
+      font-family: 'Courier New', monospace;
+      background: rgba(255,255,255,0.2);
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      display: inline-block;
+      margin: 0.5rem 0;
+    }
+
+    /* Progress indicator */
+    .progress-container {
+      margin: 2rem 0;
+    }
+
+    .progress-bar {
+      height: 8px;
+      background: var(--ground-alt);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--success);
+      width: 0%;
+      transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .progress-label {
+      font-size: var(--text-micro);
+      color: var(--ink-light);
+      margin-top: 0.5rem;
+      text-align: right;
+    }
+
+    /* Interactive canvas */
+    .canvas-container {
+      background: white;
+      border: 2px solid var(--ground-alt);
+      border-radius: 12px;
+      padding: 1rem;
+      margin: 1rem 0;
+    }
+
+    canvas {
+      max-width: 100%;
+      height: auto;
+      aspect-ratio: 600 / 400;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem;
+      }
+
+      .group-diagram {
+        grid-template-columns: 1fr;
+      }
+
+      .coset-container {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-tabs {
+        flex-wrap: wrap;
+      }
+
+      .nav-tab {
+        flex: 1;
+        min-width: 120px;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Isomorphism Theorems</h1>
+  <p>Interactive visual explanation of the First and Second Isomorphism Theorems in group theory</p>
+
+  <nav class="nav-tabs" role="tablist" aria-label="Theorem navigation">
+    <button class="nav-tab active" data-section="intro" role="tab" aria-selected="true">Introduction</button>
+    <button class="nav-tab" data-section="first" role="tab" aria-selected="false">First Theorem</button>
+    <button class="nav-tab" data-section="second" role="tab" aria-selected="false">Second Theorem</button>
+    <button class="nav-tab" data-section="comparison" role="tab" aria-selected="false">Compare</button>
+  </nav>
+
+  <!-- Introduction Section -->
+  <section id="intro" class="section active" role="tabpanel">
+    <h2>What Are Isomorphism Theorems?</h2>
+    <p>Isomorphism theorems reveal deep connections between different ways of constructing groups. They show that seemingly different constructions actually produce the same structure.</p>
+
+    <div class="info-box">
+      <div class="info-box-title">🎯 Key Insight</div>
+      <p><strong>Quotient groups and homomorphic images are the same thing!</strong> When you collapse a group by a normal subgroup, you get the same structure as the image of a homomorphism.</p>
+    </div>
+
+    <h3>Prerequisites</h3>
+    <div class="group-diagram">
+      <div class="group-box">
+        <div class="group-label">Group (G, ∗)</div>
+        <p style="font-size: var(--text-micro);">A set with an operation that satisfies closure, associativity, identity, and inverses</p>
+        <div class="elements" style="margin-top: 1rem;">
+          <div class="element identity" tabindex="0" aria-label="Identity element e">e</div>
+          <div class="element cat-1" tabindex="0" aria-label="Group element a">a</div>
+          <div class="element cat-2" tabindex="0" aria-label="Group element b">b</div>
+          <div class="element cat-3" tabindex="0" aria-label="Group element c">c</div>
+        </div>
+      </div>
+
+      <div class="group-box">
+        <div class="group-label">Homomorphism φ</div>
+        <p style="font-size: var(--text-micro);">A structure-preserving map: φ(a ∗ b) = φ(a) · φ(b)</p>
+        <div class="arrow-container" style="margin-top: 1rem;">
+          <div class="arrow"></div>
+          <div class="arrow-label">preserves operation</div>
+        </div>
+      </div>
+
+      <div class="group-box">
+        <div class="group-label">Kernel ker(φ)</div>
+        <p style="font-size: var(--text-micro);">Elements that map to identity: ker(φ) = {g ∈ G : φ(g) = e'}</p>
+        <div class="elements" style="margin-top: 1rem;">
+          <div class="element kernel" tabindex="0" aria-label="Kernel element k₁">k₁</div>
+          <div class="element kernel" tabindex="0" aria-label="Kernel element k₂">k₂</div>
+          <div class="element identity" tabindex="0" aria-label="Identity in kernel">e</div>
+        </div>
+      </div>
+    </div>
+
+    <h3>Interactive Example: ℤ → ℤ₃</h3>
+    <p>Let's explore a concrete example. The map φ: ℤ → ℤ₃ given by φ(n) = n mod 3</p>
+
+    <div class="visual-container">
+      <div class="visual-title">Explore the Homomorphism</div>
+      <div class="mapping-container">
+        <div class="mapping-column" id="domain-elements">
+          <!-- Populated by JS -->
+        </div>
+        <div class="mapping-column" id="codomain-elements">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+      <div class="controls">
+        <button class="btn" id="animate-mapping">Animate Mapping</button>
+        <button class="btn btn-secondary" id="reset-mapping">Reset</button>
+      </div>
+      <div class="info-box">
+        <div class="info-box-title">💡 Observation</div>
+        <p>Notice that multiple integers map to the same element in ℤ₃. Specifically, all integers with the same remainder form a <strong>coset</strong> of the kernel.</p>
+      </div>
+    </div>
+
+    <div class="progress-container">
+      <div class="progress-bar">
+        <div class="progress-fill" id="intro-progress"></div>
+      </div>
+      <div class="progress-label" id="intro-progress-label">0% complete</div>
+    </div>
+  </section>
+
+  <!-- First Isomorphism Theorem Section -->
+  <section id="first" class="section" role="tabpanel">
+    <h2>First Isomorphism Theorem</h2>
+    
+    <div class="theorem-box">
+      <div class="theorem-title">First Isomorphism Theorem</div>
+      <div class="theorem-statement">
+        If φ: G → H is a group homomorphism, then:
+        <div class="theorem-formula">G / ker(φ) ≅ im(φ)</div>
+        <p style="margin-top: 0.5rem; font-size: var(--text-micro); opacity: 0.9;">
+          The quotient of G by the kernel is isomorphic to the image of φ
+        </p>
+      </div>
+    </div>
+
+    <h3>What Does This Mean?</h3>
+    <div class="group-diagram">
+      <div class="group-box">
+        <div class="group-label">Starting Point: G</div>
+        <div class="elements" id="first-g-elements">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <div class="group-box">
+        <div class="group-label">Quotient: G / ker(φ)</div>
+        <div class="quotient-grid" id="first-quotient-elements">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <div class="group-box">
+        <div class="group-label">Image: im(φ)</div>
+        <div class="elements" id="first-image-elements">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+
+    <h3>Step-by-Step Proof Visualization</h3>
+    <div class="visual-container">
+      <div class="visual-title">Building the Isomorphism</div>
+      
+      <div class="step-indicator">
+        <div class="step active"><span class="step-number">1</span></div>
+        <div class="step"><span class="step-number">2</span></div>
+        <div class="step"><span class="step-number">3</span></div>
+        <div class="step"><span class="step-number">4</span></div>
+      </div>
+
+      <div class="proof-box" id="first-proof-box">
+        <div class="proof-step active" data-step="1">
+          <div class="proof-label">Step 1: Define the Map</div>
+          <div>Define ψ: G/ker(φ) → im(φ) by ψ(g·ker(φ)) = φ(g)</div>
+          <p style="font-size: var(--text-micro); margin-top: 0.5rem; color: var(--ink-light);">
+            We're creating a map from cosets to image elements
+          </p>
+        </div>
+        <div class="proof-step" data-step="2">
+          <div class="proof-label">Step 2: Well-Defined</div>
+          <div>If g₁K = g₂K, then g₁⁻¹g₂ ∈ K, so φ(g₁⁻¹g₂) = e', thus φ(g₁) = φ(g₂)</div>
+          <p style="font-size: var(--text-micro); margin-top: 0.5rem; color: var(--ink-light);">
+            The map doesn't depend on which coset representative we choose
+          </p>
+        </div>
+        <div class="proof-step" data-step="3">
+          <div class="proof-label">Step 3: Homomorphism</div>
+          <div>ψ((g₁K)(g₂K)) = ψ(g₁g₂K) = φ(g₁g₂) = φ(g₁)φ(g₂) = ψ(g₁K)ψ(g₂K)</div>
+          <p style="font-size: var(--text-micro); margin-top: 0.5rem; color: var(--ink-light);">
+            The map preserves the group operation
+          </p>
+        </div>
+        <div class="proof-step" data-step="4">
+          <div class="proof-label">Step 4: Bijective</div>
+          <div>Surjective: every φ(g) comes from gK. Injective: ψ(gK) = e' ⇒ φ(g) = e' ⇒ g ∈ K ⇒ gK = K</div>
+          <p style="font-size: var(--text-micro); margin-top: 0.5rem; color: var(--ink-light);">
+            The map is one-to-one and onto, hence an isomorphism
+          </p>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="btn" id="first-prev">Previous</button>
+        <button class="btn" id="first-next">Next</button>
+        <button class="btn btn-secondary" id="first-animate">Animate Proof</button>
+      </div>
+    </div>
+
+    <h3>Visualizing the Correspondence</h3>
+    <div class="coset-container">
+      <div class="coset-box">
+        <div class="group-label">Cosets in G/ker(φ)</div>
+        <div id="first-cosets">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+      <div class="coset-box">
+        <div class="group-label">Elements in im(φ)</div>
+        <div id="first-image-list">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
+
+    <div class="info-box success">
+      <div class="info-box-title">✓ The Key Takeaway</div>
+      <p><strong>Collapsing G by the kernel gives you exactly the image!</strong> The quotient construction and the homomorphic image are structurally identical.</p>
+    </div>
+  </section>
+
+  <!-- Second Isomorphism Theorem Section -->
+  <section id="second" class="section" role="tabpanel">
+    <h2>Second Isomorphism Theorem</h2>
+
+    <div class="theorem-box">
+      <div class="theorem-title">Second Isomorphism Theorem</div>
+      <div class="theorem-statement">
+        If H ≤ G and N ⊴ G, then:
+        <div class="theorem-formula">(HN) / N ≅ H / (H ∩ N)</div>
+        <p style="margin-top: 0.5rem; font-size: var(--text-micro); opacity: 0.9;">
+          The product modulo N is isomorphic to H modulo the intersection
+        </p>
+      </div>
+    </div>
+
+    <h3>Understanding the Setup</h3>
+    <div class="info-box">
+      <div class="info-box-title">📋 Notation</div>
+      <ul style="font-size: var(--text-label); margin-left: 1rem;">
+        <li>H ≤ G means H is a subgroup of G</li>
+        <li>N ⊴ G means N is a normal subgroup of G</li>
+        <li>HN = {hn : h ∈ H, n ∈ N} is the product subgroup</li>
+        <li>H ∩ N is the intersection (also a subgroup)</li>
+      </ul>
+    </div>
+
+    <h3>Interactive Venn Diagram</h3>
+    <div class="visual-container">
+      <div class="visual-title">Group Structure Visualization</div>
+      <canvas id="second-canvas" width="600" height="400" aria-label="Venn diagram showing group relationships"></canvas>
+      <div class="controls">
+        <button class="btn" id="toggle-h">Toggle H</button>
+        <button class="btn" id="toggle-n">Toggle N</button>
+        <button class="btn" id="show-product">Show HN</button>
+        <button class="btn" id="show-intersection">Show H ∩ N</button>
+      </div>
+    </div>
+
+    <h3>Step-by-Step Proof</h3>
+    <div class="visual-container">
+      <div class="visual-title">Proof Strategy</div>
+
+      <div class="step-indicator">
+        <div class="step active"><span class="step-number">1</span></div>
+        <div class="step"><span class="step-number">2</span></div>
+        <div class="step"><span class="step-number">3</span></div>
+      </div>
+
+      <div class="proof-box" id="second-proof-box">
+        <div class="proof-step active" data-step="1">
+          <div class="proof-label">Step 1: Define the Homomorphism</div>
+          <div>Define φ: H → (HN)/N by φ(h) = hN</div>
+          <p style="font-size: var(--text-micro); margin-top: 0.5rem; color: var(--ink-light);">
+            Map each element of H to its coset in the quotient
+          </p>
+        </div>
+        <div class="proof-step" data-step="2">
+          <div class="proof-label">Step 2: Find the Kernel</div>
+          <div>ker(φ) = {h ∈ H : hN = N} = {h ∈ H : h ∈ N} = H ∩ N</div>
+          <p style="font-size: var(--text-micro); margin-top: 0.5rem; color: var(--ink-light);">
+            The kernel is exactly the intersection!
+          </p>
+        </div>
+        <div class="proof-step" data-step="3">
+          <div class="proof-label">Step 3: Apply First Theorem</div>
+          <div>By First Isomorphism Theorem: H/ker(φ) ≅ im(φ), so H/(H ∩ N) ≅ (HN)/N</div>
+          <p style="font-size: var(--text-micro); margin-top: 0.5rem; color: var(--ink-light);">
+            The second theorem follows from the first!
+          </p>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="btn" id="second-prev">Previous</button>
+        <button class="btn" id="second-next">Next</button>
+      </div>
+    </div>
+
+    <h3>Concrete Example: G = S₃</h3>
+    <div class="group-diagram">
+      <div class="group-box">
+        <div class="group-label">G = S₃ (symmetric group)</div>
+        <p style="font-size: var(--text-micro);">All permutations of 3 elements</p>
+        <div class="elements" style="margin-top: 1rem;">
+          <div class="element identity" tabindex="0">e</div>
+          <div class="element cat-1" tabindex="0">(12)</div>
+          <div class="element cat-1" tabindex="0">(13)</div>
+          <div class="element cat-1" tabindex="0">(23)</div>
+          <div class="element cat-2" tabindex="0">(123)</div>
+          <div class="element cat-2" tabindex="0">(132)</div>
+        </div>
+      </div>
+
+      <div class="group-box">
+        <div class="group-label">H = ⟨(12)⟩, N = A₃</div>
+        <p style="font-size: var(--text-micro);">H = {e, (12)}, N = {e, (123), (132)}</p>
+        <div class="elements" style="margin-top: 1rem;">
+          <div class="element cat-1" tabindex="0">H</div>
+          <div class="element cat-2" tabindex="0">N</div>
+        </div>
+      </div>
+
+      <div class="group-box">
+        <div class="group-label">Result: (HN)/N ≅ H/(H∩N)</div>
+        <p style="font-size: var(--text-micro);">Both sides equal ℤ₂</p>
+        <div class="elements" style="margin-top: 1rem;">
+          <div class="element success" tabindex="0">≅</div>
+          <div class="element cat-3" tabindex="0">ℤ₂</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Comparison Section -->
+  <section id="comparison" class="section" role="tabpanel">
+    <h2>Comparing the Theorems</h2>
+
+    <div class="group-diagram">
+      <div class="group-box">
+        <div class="group-label">First Isomorphism Theorem</div>
+        <div class="theorem-formula" style="font-size: var(--text-label);">G/ker(φ) ≅ im(φ)</div>
+        <h3 style="margin-top: 1rem;">Purpose</h3>
+        <p style="font-size: var(--text-label);">Relates quotient groups to homomorphic images</p>
+        <h3 style="margin-top: 1rem;">Key Insight</h3>
+        <p style="font-size: var(--text-label);">Quotienting by the kernel gives the image</p>
+        <h3 style="margin-top: 1rem;">Use When</h3>
+        <p style="font-size: var(--text-label);">You have a homomorphism and want to understand its structure</p>
+      </div>
+
+      <div class="group-box">
+        <div class="group-label">Second Isomorphism Theorem</div>
+        <div class="theorem-formula" style="font-size: var(--text-label);">(HN)/N ≅ H/(H∩N)</div>
+        <h3 style="margin-top: 1rem;">Purpose</h3>
+        <p style="font-size: var(--text-label);">Relates product quotients to intersection quotients</p>
+        <h3 style="margin-top: 1rem;">Key Insight</h3>
+        <p style="font-size: var(--text-label);">Two ways of collapsing give the same result</p>
+        <h3 style="margin-top: 1rem;">Use When</h3>
+        <p style="font-size: var(--text-label);">You have a subgroup and normal subgroup interacting</p>
+      </div>
+    </div>
+
+    <h3>The Connection</h3>
+    <div class="info-box success">
+      <div class="info-box-title">🔗 Beautiful Relationship</div>
+      <p><strong>The Second Theorem is proved using the First!</strong> This shows the First Isomorphism Theorem is the fundamental result—the Second is a clever application.</p>
+    </div>
+
+    <h3>Memory Aid</h3>
+    <div class="visual-container">
+      <div class="visual-title">How to Remember</div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+        <div>
+          <h4 style="color: var(--cat-1); margin-bottom: 0.5rem;">First Theorem</h4>
+          <p style="font-size: var(--text-label);"><strong>"Kernel to Image"</strong></p>
+          <p style="font-size: var(--text-micro); color: var(--ink-light);">Collapse by kernel → get image</p>
+        </div>
+        <div>
+          <h4 style="color: var(--cat-2); margin-bottom: 0.5rem;">Second Theorem</h4>
+          <p style="font-size: var(--text-label);"><strong>"Product over N equals H over Intersection"</strong></p>
+          <p style="font-size: var(--text-micro); color: var(--ink-light);">Two quotients, same result</p>
+        </div>
+      </div>
+    </div>
+
+    <h3>Practice Understanding</h3>
+    <div class="visual-container">
+      <div class="visual-title">Test Your Understanding</div>
+      <div id="quiz-container">
+        <div class="quiz-question" data-question="1">
+          <p><strong>Question 1:</strong> If φ: G → H has kernel K, what does G/K look like?</p>
+          <div class="quiz-options">
+            <button class="btn btn-secondary quiz-option" data-correct="false">Isomorphic to G</button>
+            <button class="btn btn-secondary quiz-option" data-correct="true">Isomorphic to im(φ)</button>
+            <button class="btn btn-secondary quiz-option" data-correct="false">Isomorphic to H</button>
+          </div>
+        </div>
+        <div class="quiz-question" data-question="2" style="display: none;">
+          <p><strong>Question 2:</strong> In the Second Theorem, what is the kernel of φ: H → (HN)/N?</p>
+          <div class="quiz-options">
+            <button class="btn btn-secondary quiz-option" data-correct="false">N</button>
+            <button class="btn btn-secondary quiz-option" data-correct="true">H ∩ N</button>
+            <button class="btn btn-secondary quiz-option" data-correct="false">HN</button>
+          </div>
+        </div>
+        <div class="quiz-question" data-question="3" style="display: none;">
+          <p><strong>Question 3:</strong> Why is the First Theorem more fundamental?</p>
+          <div class="quiz-options">
+            <button class="btn btn-secondary quiz-option" data-correct="true">The Second Theorem is proved using the First</button>
+            <button class="btn btn-secondary quiz-option" data-correct="false">It was discovered first</button>
+            <button class="btn btn-secondary quiz-option" data-correct="false">It's simpler to state</button>
+          </div>
+        </div>
+      </div>
+      <div class="controls" style="margin-top: 1rem;">
+        <button class="btn" id="check-answer">Check Answer</button>
+        <button class="btn btn-secondary" id="next-question" style="display: none;">Next Question</button>
+      </div>
+      <div id="quiz-feedback" style="margin-top: 1rem; padding: 1rem; border-radius: 8px; display: none;"></div>
+    </div>
+  </section>
+
+  <script>
+    // Navigation
+    const tabs = document.querySelectorAll('.nav-tab');
+    const sections = document.querySelectorAll('.section');
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => {
+          t.classList.remove('active');
+          t.setAttribute('aria-selected', 'false');
+        });
+        sections.forEach(s => s.classList.remove('active'));
+
+        tab.classList.add('active');
+        tab.setAttribute('aria-selected', 'true');
+        document.getElementById(tab.dataset.section).classList.add('active');
+      });
+    });
+
+    // Progress bar updater
+    function updateProgress(sectionId) {
+      const fill = document.getElementById(`${sectionId}-progress`);
+      const label = document.getElementById(`${sectionId}-progress-label`);
+      if (!fill) return;
+      fill.style.transition = 'none';
+      fill.style.width = '0%';
+      requestAnimationFrame(() => {
+        fill.style.transition = 'width 1s cubic-bezier(0.4, 0, 0.2, 1)';
+        fill.style.width = '100%';
+      });
+      if (label) {
+        const pct = 0;
+        const interval = setInterval(() => {
+          const current = parseInt(fill.style.width);
+          if (current >= 100) { clearInterval(interval); label.textContent = '100% complete'; return; }
+          label.textContent = Math.min(current + 1, 100) + '% complete';
+        }, 10);
+      }
+    }
+
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const sectionId = tab.dataset.section;
+        if (sectionId === 'intro' || sectionId === 'first' || sectionId === 'second') {
+          setTimeout(() => updateProgress(sectionId), 100);
+        }
+      });
+    });
+
+    // Initialize progress for intro on load
+    setTimeout(() => updateProgress('intro'), 200);
+
+    // Intro: Mapping Animation
+    const domainElements = document.getElementById('domain-elements');
+    const codomainElements = document.getElementById('codomain-elements');
+    const mappingContainer = document.querySelector('.mapping-container');
+    const domainValues = [-3, -2, -1, 0, 1, 2, 3, 4, 5];
+    const codomainValues = [0, 1, 2];
+
+    function createMapping() {
+      domainElements.innerHTML = '';
+      codomainElements.innerHTML = '';
+
+      domainValues.forEach(n => {
+        const el = document.createElement('div');
+        el.className = 'element cat-1';
+        el.textContent = n;
+        el.tabIndex = 0;
+        el.dataset.value = n;
+        el.dataset.image = ((n % 3) + 3) % 3;
+        domainElements.appendChild(el);
+      });
+
+      codomainValues.forEach(n => {
+        const el = document.createElement('div');
+        el.className = 'element cat-2';
+        el.textContent = `[${n}]`;
+        el.tabIndex = 0;
+        el.dataset.value = n;
+        codomainElements.appendChild(el);
+      });
+    }
+
+    createMapping();
+
+    function drawMappingLine(fromEl, toEl, delay) {
+      const fromRect = fromEl.getBoundingClientRect();
+      const toRect = toEl.getBoundingClientRect();
+      const containerRect = mappingContainer.getBoundingClientRect();
+
+      const fromX = fromRect.right - containerRect.left;
+      const fromY = fromRect.top + fromRect.height / 2 - containerRect.top;
+      const toX = toRect.left - containerRect.left;
+      const toY = toRect.top + toRect.height / 2 - containerRect.top;
+
+      const length = Math.sqrt(Math.pow(toX - fromX, 2) + Math.pow(toY - fromY, 2));
+      const angle = Math.atan2(toY - fromY, toX - fromX) * 180 / Math.PI;
+
+      const line = document.createElement('div');
+      line.className = 'mapping-line animate';
+      line.style.left = fromX + 'px';
+      line.style.top = fromY + 'px';
+      line.style.transform = `rotate(${angle}deg)`;
+      line.style.setProperty('--line-length', length + 'px');
+
+      const arrow = document.createElement('div');
+      arrow.className = 'mapping-arrow';
+      arrow.style.left = (fromX + length * 0.7 * Math.cos(angle * Math.PI / 180)) + 'px';
+      arrow.style.top = (fromY + length * 0.7 * Math.sin(angle * Math.PI / 180) - 6) + 'px';
+      arrow.style.transform = `rotate(${angle}deg)`;
+
+      setTimeout(() => {
+        mappingContainer.appendChild(line);
+        mappingContainer.appendChild(arrow);
+        setTimeout(() => arrow.classList.add('visible'), 50);
+      }, delay);
+
+      return { line, arrow };
+    }
+
+    document.getElementById('animate-mapping').addEventListener('click', () => {
+      const domainEls = domainElements.querySelectorAll('.element');
+      const codomainEls = codomainElements.querySelectorAll('.element');
+
+      // Clear existing lines
+      mappingContainer.querySelectorAll('.mapping-line, .mapping-arrow').forEach(el => el.remove());
+
+      domainEls.forEach(el => el.classList.add('faded'));
+      
+      const groups = { '0': [], '1': [], '2': [] };
+      domainEls.forEach(el => {
+        const image = el.dataset.image;
+        groups[image].push(el);
+      });
+
+      let delay = 0;
+      ['0', '1', '2'].forEach(image => {
+        const targetEl = Array.from(codomainEls).find(el => el.dataset.value === image);
+        
+        setTimeout(() => {
+          groups[image].forEach((el, i) => {
+            el.classList.remove('faded');
+            el.classList.add('selected');
+            
+            // Draw line to target
+            const { line, arrow } = drawMappingLine(el, targetEl, i * 100);
+            
+            setTimeout(() => {
+              el.classList.remove('selected');
+            }, 1000);
+          });
+          
+          targetEl.classList.add('highlight');
+          setTimeout(() => targetEl.classList.remove('highlight'), 1200);
+        }, delay);
+        delay += 1500;
+      });
+    });
+
+    document.getElementById('reset-mapping').addEventListener('click', () => {
+      domainElements.querySelectorAll('.element').forEach(el => {
+        el.classList.remove('faded', 'selected');
+      });
+      codomainElements.querySelectorAll('.element').forEach(el => {
+        el.classList.remove('highlight');
+      });
+      mappingContainer.querySelectorAll('.mapping-line, .mapping-arrow').forEach(el => el.remove());
+    });
+
+    // First Isomorphism Theorem
+    let firstStep = 0;
+    const totalFirstSteps = 4;
+
+    function updateFirstProof() {
+      const steps = document.querySelectorAll('#first-proof-box .proof-step');
+      const indicators = document.querySelectorAll('#first .step');
+
+      steps.forEach((step, i) => {
+        step.classList.remove('active', 'completed');
+        if (i < firstStep) step.classList.add('completed');
+        if (i === firstStep) step.classList.add('active');
+      });
+
+      indicators.forEach((ind, i) => {
+        ind.classList.remove('active', 'completed');
+        if (i < firstStep) ind.classList.add('completed');
+        if (i === firstStep) ind.classList.add('active');
+      });
+    }
+
+    document.getElementById('first-next').addEventListener('click', () => {
+      if (firstStep < totalFirstSteps - 1) {
+        firstStep++;
+        updateFirstProof();
+      }
+    });
+
+    document.getElementById('first-prev').addEventListener('click', () => {
+      if (firstStep > 0) {
+        firstStep--;
+        updateFirstProof();
+      }
+    });
+
+    document.getElementById('first-animate').addEventListener('click', () => {
+      firstStep = 0;
+      updateFirstProof();
+      const interval = setInterval(() => {
+        if (firstStep < totalFirstSteps - 1) {
+          firstStep++;
+          updateFirstProof();
+        } else {
+          clearInterval(interval);
+        }
+      }, 2000);
+    });
+
+    // Populate First Theorem elements
+    const firstGElements = document.getElementById('first-g-elements');
+    const gElements = ['e', 'a', 'b', 'c', 'd', 'f'];
+    gElements.forEach((el, i) => {
+      const div = document.createElement('div');
+      div.className = `element cat-${(i % 3) + 1}`;
+      div.textContent = el;
+      div.tabIndex = 0;
+      firstGElements.appendChild(div);
+    });
+
+    const firstQuotientElements = document.getElementById('first-quotient-elements');
+    const cosets = [
+      { label: 'K', elements: ['e', 'c'] },
+      { label: 'aK', elements: ['a', 'd'] },
+      { label: 'bK', elements: ['b', 'f'] }
+    ];
+    cosets.forEach(coset => {
+      const div = document.createElement('div');
+      div.className = 'quotient-cell';
+      div.tabIndex = 0;
+      div.innerHTML = `
+        <div class="quotient-label">${coset.label}</div>
+        <div class="quotient-elements">{${coset.elements.join(', ')}}</div>
+      `;
+      firstQuotientElements.appendChild(div);
+    });
+
+    const firstImageElements = document.getElementById('first-image-elements');
+    const imageElements = ["[e']", "[a']", "[b']"];
+    imageElements.forEach(el => {
+      const div = document.createElement('div');
+      div.className = 'element cat-2';
+      div.textContent = el;
+      div.tabIndex = 0;
+      firstImageElements.appendChild(div);
+    });
+
+    // Populate cosets
+    const firstCosets = document.getElementById('first-cosets');
+    cosets.forEach((coset, i) => {
+      const div = document.createElement('div');
+      div.className = 'coset-row';
+      div.tabIndex = 0;
+      div.innerHTML = `
+        <div class="coset-label">${coset.label}</div>
+        <div class="coset-elements">
+          ${coset.elements.map(e => `<span class="coset-element">${e}</span>`).join('')}
+        </div>
+      `;
+      div.addEventListener('click', () => {
+        document.querySelectorAll('#first-cosets .coset-row').forEach(r => r.classList.remove('active'));
+        div.classList.add('active');
+        
+        const imageList = document.getElementById('first-image-list');
+        imageList.innerHTML = `
+          <div class="coset-row active">
+            <div class="coset-label">φ(${coset.label})</div>
+            <div class="coset-elements">
+              <span class="coset-element">${imageElements[i]}</span>
+            </div>
+          </div>
+        `;
+      });
+      firstCosets.appendChild(div);
+    });
+
+    // Activate first coset row by default
+    const firstCosetRow = firstCosets.querySelector('.coset-row');
+    if (firstCosetRow) firstCosetRow.click();
+
+    // Second Isomorphism Theorem Canvas
+    const canvas = document.getElementById('second-canvas');
+    const ctx = canvas.getContext('2d');
+
+    let showH = true;
+    let showN = true;
+    let showProduct = false;
+    let showIntersection = false;
+
+    function drawVenn() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // G boundary
+      ctx.strokeStyle = '#1a1a2e';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.ellipse(300, 200, 280, 180, 0, 0, 2 * Math.PI);
+      ctx.stroke();
+      ctx.fillStyle = '#1a1a2e';
+      ctx.font = 'bold 16px sans-serif';
+      ctx.fillText('G', 50, 200);
+
+      // H ellipse
+      if (showH) {
+        ctx.fillStyle = 'rgba(78, 121, 167, 0.3)';
+        ctx.strokeStyle = '#4e79a7';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.ellipse(220, 150, 120, 100, -0.3, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = '#4e79a7';
+        ctx.fillText('H', 130, 120);
+      }
+
+      // N ellipse
+      if (showN) {
+        ctx.fillStyle = 'rgba(242, 142, 44, 0.3)';
+        ctx.strokeStyle = '#f28e2c';
+        ctx.beginPath();
+        ctx.ellipse(380, 200, 140, 110, 0.2, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.stroke();
+        ctx.fillStyle = '#f28e2c';
+        ctx.fillText('N', 480, 170);
+      }
+
+      // Highlight intersection
+      if (showIntersection) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.ellipse(220, 150, 120, 100, -0.3, 0, 2 * Math.PI);
+        ctx.clip();
+        ctx.beginPath();
+        ctx.ellipse(380, 200, 140, 110, 0.2, 0, 2 * Math.PI);
+        ctx.fillStyle = 'rgba(225, 87, 89, 0.6)';
+        ctx.fill();
+        ctx.restore();
+        ctx.fillStyle = '#e15759';
+        ctx.fillText('H ∩ N', 280, 220);
+      }
+
+      // Highlight product
+      if (showProduct) {
+        ctx.fillStyle = 'rgba(118, 183, 178, 0.4)';
+        ctx.beginPath();
+        ctx.ellipse(300, 175, 200, 140, 0, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.fillStyle = '#76b7b2';
+        ctx.fillText('HN', 450, 120);
+      }
+    }
+
+    drawVenn();
+
+    document.getElementById('toggle-h').addEventListener('click', () => {
+      showH = !showH;
+      drawVenn();
+    });
+
+    document.getElementById('toggle-n').addEventListener('click', () => {
+      showN = !showN;
+      drawVenn();
+    });
+
+    document.getElementById('show-product').addEventListener('click', () => {
+      showProduct = !showProduct;
+      drawVenn();
+    });
+
+    document.getElementById('show-intersection').addEventListener('click', () => {
+      showIntersection = !showIntersection;
+      drawVenn();
+    });
+
+    // Second Isomorphism Theorem Proof
+    let secondStep = 0;
+    const totalSecondSteps = 3;
+
+    function updateSecondProof() {
+      const steps = document.querySelectorAll('#second-proof-box .proof-step');
+      const indicators = document.querySelectorAll('#second .step');
+
+      steps.forEach((step, i) => {
+        step.classList.remove('active', 'completed');
+        if (i < secondStep) step.classList.add('completed');
+        if (i === secondStep) step.classList.add('active');
+      });
+
+      indicators.forEach((ind, i) => {
+        ind.classList.remove('active', 'completed');
+        if (i < secondStep) ind.classList.add('completed');
+        if (i === secondStep) ind.classList.add('active');
+      });
+    }
+
+    document.getElementById('second-next').addEventListener('click', () => {
+      if (secondStep < totalSecondSteps - 1) {
+        secondStep++;
+        updateSecondProof();
+      }
+    });
+
+    document.getElementById('second-prev').addEventListener('click', () => {
+      if (secondStep > 0) {
+        secondStep--;
+        updateSecondProof();
+      }
+    });
+
+    // Quiz
+    let currentQuestion = 1;
+    let selectedAnswer = null;
+
+    document.querySelectorAll('.quiz-option').forEach(option => {
+      option.addEventListener('click', () => {
+        document.querySelectorAll('.quiz-option').forEach(o => o.style.background = '');
+        option.style.background = 'var(--cat-1)';
+        option.style.color = 'white';
+        selectedAnswer = option.dataset.correct === 'true';
+      });
+    });
+
+    document.getElementById('check-answer').addEventListener('click', () => {
+      const feedback = document.getElementById('quiz-feedback');
+      if (selectedAnswer === null) {
+        feedback.textContent = 'Please select an answer';
+        feedback.style.background = '#fff3cd';
+        feedback.style.display = 'block';
+        return;
+      }
+
+      if (selectedAnswer) {
+        feedback.textContent = '✓ Correct! Well done.';
+        feedback.style.background = '#d4edda';
+      } else {
+        feedback.textContent = '✗ Not quite. Review the theorem statement and try again.';
+        feedback.style.background = '#f8d7da';
+      }
+      feedback.style.display = 'block';
+
+      document.getElementById('next-question').style.display = 'inline-block';
+    });
+
+    document.getElementById('next-question').addEventListener('click', () => {
+      document.querySelector(`.quiz-question[data-question="${currentQuestion}"]`).style.display = 'none';
+      currentQuestion++;
+      
+      if (currentQuestion <= 3) {
+        document.querySelector(`.quiz-question[data-question="${currentQuestion}"]`).style.display = 'block';
+        selectedAnswer = null;
+        document.getElementById('quiz-feedback').style.display = 'none';
+        document.getElementById('next-question').style.display = 'none';
+        document.querySelectorAll('.quiz-option').forEach(o => o.style.background = '');
+      } else {
+        document.getElementById('quiz-container').innerHTML = `
+          <div style="text-align: center; padding: 2rem;">
+            <h3 style="color: var(--success);">Quiz Complete!</h3>
+            <p>You've reviewed all the key concepts.</p>
+          </div>
+        `;
+        document.querySelector('.controls').style.display = 'none';
+      }
+    });
+
+    // Keyboard navigation for proof steps
+    document.addEventListener('keydown', (e) => {
+      const activeSection = document.querySelector('.section.active');
+      if (!activeSection) return;
+
+      if (activeSection.id === 'first') {
+        if (e.key === 'ArrowRight') document.getElementById('first-next').click();
+        if (e.key === 'ArrowLeft') document.getElementById('first-prev').click();
+      }
+      if (activeSection.id === 'second') {
+        if (e.key === 'ArrowRight') document.getElementById('second-next').click();
+        if (e.key === 'ArrowLeft') document.getElementById('second-prev').click();
+      }
+    });
+
+    // Focus management for accessibility
+    document.querySelectorAll('.element, .quotient-cell, .coset-row, .btn').forEach(el => {
+      el.addEventListener('focus', () => {
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+    });
+  </script>
+</body>
+</html>
