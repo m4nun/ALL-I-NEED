@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Report: How Transformer LLMs Work</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 0 20px;
+            color: #333;
+        }
+        h1 { font-size: 1.8em; margin-bottom: 0.2em; }
+        .subtitle { color: #666; font-size: 0.95em; margin-bottom: 2em; }
+        .verdict {
+            background: #f0f8ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .verdict strong { color: #1976D2; }
+        h2 { font-size: 1.2em; margin-top: 1.5em; color: #222; }
+        ul { padding-left: 20px; }
+        li { margin-bottom: 6px; }
+        .meta {
+            background: #f5f5f5;
+            padding: 12px 16px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            margin-bottom: 1.5em;
+        }
+        .meta span { margin-right: 16px; }
+        .pros-cons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 10px;
+        }
+        .pros-cons div { padding: 10px; border-radius: 4px; }
+        .pros { background: #e8f5e9; }
+        .cons { background: #ffebee; }
+        .pros h3 { color: #2e7d32; margin-top: 0; font-size: 1em; }
+        .cons h3 { color: #c62828; margin-top: 0; font-size: 1em; }
+        @media (max-width: 600px) {
+            .pros-cons { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>How Transformer LLMs Work</h1>
+    <p class="subtitle">DeepLearning.AI Short Course &mdash; Report for Prospective Learners</p>
+
+    <div class="meta">
+        <span><strong>Duration:</strong> 1h 34m</span>
+        <span><strong>Level:</strong> Beginner</span>
+        <span><strong>Format:</strong> 13 Videos + 2 Code Labs + Quiz</span>
+    </div>
+
+    <div class="verdict">
+        <strong>Verdict:</strong> Worth it if you want a solid conceptual foundation for how LLMs work under the hood, without heavy math. Skip it if you are already comfortable reading transformer architecture diagrams and implementing attention mechanisms from scratch.
+    </div>
+
+    <h2>What This Course Covers</h2>
+    <ul>
+        <li><strong>The full pipeline:</strong> How text is tokenized, embedded, processed through transformer blocks, and turned into output.</li>
+        <li><strong>Self-attention explained visually:</strong> Query, Key, Value matrices, relevance scoring, and multi-head attention.</li>
+        <li><strong>Modern optimizations:</strong> KV caching, grouped query attention, sparse attention, and rotary position embeddings (RoPE).</li>
+        <li><strong>Mixture of Experts (MoE):</strong> How models like Mixtral use sparse expert networks to scale efficiently.</li>
+        <li><strong>Hands-on code:</strong> Using HuggingFace Transformers to inspect real model architectures (e.g., Phi-3-mini, Llama 3.1).</li>
+    </ul>
+
+    <h2>Key Value Proposition</h2>
+    <p>
+        The course demystifies LLMs. By the end, you will understand <em>why</em> transformers process tokens in parallel, <em>how</em> attention captures context, and <em>what</em> modern efficiency tricks (like KV cache and MoE) actually do. This helps you use LLMs more effectively and read model specs (e.g., Llama 3.1 8B) with confidence.
+    </p>
+
+    <div class="pros-cons">
+        <div class="pros">
+            <h3>Pros</h3>
+            <ul>
+                <li>Beginner-friendly, no heavy math</li>
+                <li>Visual, intuitive explanations</li>
+                <li>Covers modern techniques (2024)</li>
+                <li>Practical code examples</li>
+                <li>Only ~90 minutes</li>
+            </ul>
+        </div>
+        <div class="cons">
+            <h3>Cons</h3>
+            <ul>
+                <li>Not a coding-heavy course</li>
+                <li>Does not teach training/fine-tuning</li>
+                <li>May be too basic for ML engineers</li>
+            </ul>
+        </div>
+    </div>
+
+    <h2>Who Should Take It?</h2>
+    <ul>
+        <li>Developers and product managers working with LLMs who want to understand what is happening under the hood.</li>
+        <li>Students entering NLP/AI who need an intuitive foundation before reading papers.</li>
+        <li>Anyone who has used ChatGPT but wants to stop treating it as a black box.</li>
+    </ul>
+
+    <h2>Bottom Line</h2>
+    <p>
+        If you are deciding whether to invest 90 minutes, the answer is <strong>yes</strong> &mdash; provided you are at the beginner to early-intermediate level. It bridges the gap between "I use LLMs" and "I understand how LLMs work," which is increasingly valuable as these models become central to software products.
+    </p>
+
+</body>
+</html>

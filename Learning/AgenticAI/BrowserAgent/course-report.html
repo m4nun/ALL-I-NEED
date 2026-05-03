@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Course Review: Building AI Browser Agents</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f5f7fa;
+      color: #333;
+      line-height: 1.6;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      padding: 40px;
+    }
+    h1 { font-size: 1.8rem; margin-bottom: 8px; color: #1a202c; }
+    .meta { color: #718096; font-size: 0.95rem; margin-bottom: 24px; }
+    .tag {
+      display: inline-block;
+      background: #edf2f7;
+      color: #2d3748;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      margin-right: 8px;
+      margin-bottom: 8px;
+    }
+    .section { margin: 28px 0; }
+    h2 { font-size: 1.2rem; color: #2d3748; margin-bottom: 12px; }
+    p { margin-bottom: 12px; }
+    ul { margin-left: 20px; margin-bottom: 16px; }
+    li { margin-bottom: 8px; }
+    .highlight {
+      background: #ebf8ff;
+      border-left: 4px solid #4299e1;
+      padding: 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 16px 0;
+    }
+    .verdict {
+      background: #f0fff4;
+      border: 1px solid #9ae6b4;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+    }
+    .verdict h2 { color: #22543d; margin-bottom: 8px; }
+    .verdict p { color: #276749; margin: 0; }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 16px;
+      margin: 20px 0;
+    }
+    .stat-box {
+      background: #f7fafc;
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+    }
+    .stat-box strong {
+      display: block;
+      font-size: 1.3rem;
+      color: #2b6cb0;
+      margin-bottom: 4px;
+    }
+    .stat-box span { font-size: 0.85rem; color: #718096; }
+    a { color: #4299e1; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Building AI Browser Agents</h1>
+    <div class="meta">
+      DeepLearning.AI &bull; AGI Inc. (MultiOn) &bull;
+      <a href="https://learn.deeplearning.ai/courses/building-ai-browser-agents/" target="_blank">Course Link</a>
+    </div>
+
+    <div>
+      <span class="tag">AI Agents</span>
+      <span class="tag">Web Automation</span>
+      <span class="tag">Reinforcement Learning</span>
+      <span class="tag">Python</span>
+      <span class="tag">~52 min</span>
+    </div>
+
+    <div class="section">
+      <h2>What You Will Learn</h2>
+      <p>This short, hands-on course teaches you how to build AI agents that can autonomously browse websites, fill forms, search for information, and complete tasks without human intervention.</p>
+      <ul>
+        <li><strong>Fundamentals:</strong> How web agents perceive (visual + HTML/DOM) and act (click, type, scroll)</li>
+        <li><strong>Practical Coding:</strong> Build a scraping agent with OpenAI + Playwright, then an autonomous agent using MultiOn</li>
+        <li><strong>Self-Correction:</strong> Implement <strong>AgentQ</strong>, a framework combining Monte Carlo Tree Search (MCTS), self-criticism, and Direct Preference Optimization (DPO)</li>
+        <li><strong>Future Trends:</strong> Multi-agent systems and the REAL benchmark for evaluating agents</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>Key Concepts Covered</h2>
+      <div class="stats">
+        <div class="stat-box">
+          <strong>MCTS</strong>
+          <span>Decision space exploration</span>
+        </div>
+        <div class="stat-box">
+          <strong>Self-Critic</strong>
+          <span>LLM-based feedback loop</span>
+        </div>
+        <div class="stat-box">
+          <strong>DPO</strong>
+          <span>RL fine-tuning</span>
+        </div>
+        <div class="stat-box">
+          <strong>MultiOn</strong>
+          <span>Autonomous web agent API</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Hands-On Projects</h2>
+      <ul>
+        <li>Scrape and filter DeepLearning.AI courses using an LLM-powered agent</li>
+        <li>Build an agent that navigates pages, summarizes content, and subscribes to newsletters</li>
+        <li>Code a Grid World simulation to visualize how MCTS finds optimal paths</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>Pros & Cons</h2>
+      <div class="highlight">
+        <strong>Pros:</strong> Concise (~1 hour), code-heavy, covers cutting-edge techniques (AgentQ/MCTS), taught by industry founders, practical real-world demos.
+      </div>
+      <div class="highlight" style="background:#fff5f5;border-left-color:#fc8181;">
+        <strong>Cons:</strong> Very short (8 lessons), assumes basic Python/LLM knowledge, some demos rely on specific APIs (MultiOn) that may need keys.
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Who Is This For?</h2>
+      <ul>
+        <li>Developers and engineers getting into AI agents</li>
+        <li>Anyone building automation tools, RPA, or web scrapers</li>
+        <li>Learners curious about RL (MCTS/DPO) applied to browsers</li>
+      </ul>
+    </div>
+
+    <div class="verdict">
+      <h2>Verdict: Worth It</h2>
+      <p>If you want a <strong>fast, practical introduction</strong> to autonomous browser agents with real code and modern RL techniques, this course delivers excellent value for its length. Best suited for those who already know Python and want to see agentic AI in action rather than theory-only learners.</p>
+    </div>
+  </div>
+</body>
+</html>
