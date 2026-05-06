@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Skill — สรุป</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+  * { font-family: 'Noto Sans Thai', 'Inter', sans-serif; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .animate-fade-up { animation: fadeUp 0.5s ease-out forwards; }
+  .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+  body { min-height: 100vh; }
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(100, 116, 139, 0.3); border-radius: 4px; }
+</style>
+</head>
+<body class="bg-white text-slate-800 cursor-pointer select-none overflow-x-hidden">
+  <!-- Top bar -->
+  <div class="fixed top-0 left-0 right-0 z-20 bg-white/90 backdrop-blur-sm border-b border-slate-100 py-3">
+    <div class="max-w-3xl mx-auto px-6 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center">
+          <span class="text-white text-xs font-bold">S</span>
+        </div>
+        <span id="counter" class="text-sm text-slate-500 font-mono">0 / 0</span>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <div id="progress-dots" class="flex items-center gap-1"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="relative z-10 max-w-3xl mx-auto px-6 pt-20 pb-32">
+    <div id="content" class="space-y-6"></div>
+  </div>
+
+  <!-- Bottom bar -->
+  <div class="fixed bottom-0 left-0 right-0 z-20 bg-white/90 backdrop-blur-sm border-t border-slate-100 py-3">
+    <div class="max-w-3xl mx-auto px-6 flex items-center justify-between">
+      <button id="back-btn" class="text-sm text-slate-400 hover:text-indigo-600 transition-colors disabled:opacity-20 disabled:cursor-not-allowed font-medium" disabled>
+        ← ย้อนกลับ
+      </button>
+      <span id="hint" class="text-xs text-slate-400">คลิกหรือกด Space เพื่อไปต่อ</span>
+    </div>
+  </div>
+
+  <script>
+    const beats = [
+      {
+        type: 'title',
+        content: 'Agent Skill',
+        sub: 'มาตรฐานใหม่สำหรับ AI Agent\nวิธีเพิ่มความเชี่ยวชาญให้ Agent ของคุณ',
+        by: 'Mylo (@mylxst)'
+      },
+      {
+        type: 'question',
+        content: 'Agent Skill คืออะไร?',
+        sub: 'มาตรฐานที่ออกแบบโดย Anthropic เพื่อเพิ่มความเชี่ยวชาญและขั้นตอนการทำงานเฉพาะทางให้กับ AI Agent\n\nเป็นเหมือน "คู่มือการทำงาน" ที่ติดตัว Agent ไว้\nเพื่อให้เข้าใจเนื้องานได้ดียิ่งขึ้น'
+      },
+      {
+        type: 'compare',
+        title: 'MCP vs Agent Skill',
+        left: { label: 'MCP', desc: 'เป็นท่อ (protocol)\nที่ทำให้ AI สามารถ\nไปหยิบเครื่องมือมาใช้' },
+        right: { label: 'Agent Skill', desc: 'เป็นคู่มือการทำงาน\nที่บอก Agent ว่า\nควรใช้เครื่องมือยังไง' }
+      },
+      {
+        type: 'section',
+        title: 'โครงสร้างของ Skill',
+        items: [
+          { icon: '📄', label: 'skill.md', desc: 'Frontmatter (metadata)\n+ Instruction ที่บอก Agent ว่าสกิลนี้ทำอะไร' },
+          { icon: '🔧', label: 'Scripts', desc: 'คำสั่งที่เตรียมไว้\nให้ทำงานคู่กับสกิล\nเช่น run, clean, test' },
+          { icon: '📚', label: 'Reference', desc: 'เอกสารอ้างอิง\nเช่น API docs, Design System tokens, Requirements' }
+        ]
+      },
+      {
+        type: 'callout',
+        icon: '⚡',
+        title: 'Frontmatter คือหัวใจ',
+        content: 'เวลาที่ Agent เริ่มทำงาน metadata ของ skill จะถูกโหลดเข้าไปก่อน\nเพื่อให้ Agent รู้จัก skill ทั้งหมดโดยไม่ต้องอ่านเนื้อหาเต็ม',
+        highlight: 'Description และ Name ของ skill ต้องชัดเจน — เพราะนี่คือสิ่งแรกที่ Agent อ่าน'
+      },
+      {
+        type: 'section',
+        title: 'Skill มีกี่แบบ?',
+        items: [
+          { icon: '📋', label: 'Best Practice', desc: 'กำหนดแนวทาง\การเขียนโค้ด\nSecurity Review\nCode Review\nDB Design' },
+          { icon: '🔗', label: 'Connector', desc: 'เชื่อมต่อกับ\nเครื่องมือภายนอก\nFigma, Supabase\nGitHub, Slack' },
+          { icon: '📖', label: 'Information', desc: 'อ้างอิงข้อมูล\nDesign System Token\nRequirement Specs\nAPI Documentation' }
+        ]
+      },
+      {
+        type: 'list',
+        title: 'ตัวอย่าง Skill ในโปรเจคจริง',
+        items: [
+          'Base Requirement — กรอบความต้องการของโปรเจค',
+          'Code Review — checklist การรีวิวโค้ด (React 19, Next.js 16, API Router)',
+          'Security Review — ตรวจสอบ OWASP Top 10, SQL Injection, XSS',
+          'DB Design — Schema, Migration, Indexing',
+          'E2E Testing — ครอบคลุม critical path',
+          'Design System — Token, Component, Storybook compliance'
+        ]
+      },
+      {
+        type: 'step',
+        title: 'Skill ถูกโหลดยังไง?',
+        steps: [
+          { num: '1', label: 'Startup', desc: 'Agent โหลด instruction + metadata ของทุก skill' },
+          { num: '2', label: 'เลือก', desc: 'Agent ดู description ว่าสกิลไหนตรงกับงาน' },
+          { num: '3', label: 'โหลดเต็ม', desc: 'เฉพาะ skill ที่เลือกเท่านั้นถึงจะโหลด instruction+script+reference เต็ม' }
+        ],
+        tip: 'เขียน description ให้ดี — เพราะ Agent ใช้แค่นี้ตัดสินใจใน Step 2'
+      },
+      {
+        type: 'list',
+        title: 'แหล่งรวม Skill',
+        items: [
+          'Official Agent Skill (agent-skill.io) — skill ที่ official จาก Anthropic',
+          'Awesome Agent Skill — community collection รวม skill ที่น่าสนใจ',
+          'npx skill add <github-repo> — คำสั่งโหลด skill จาก GitHub',
+          'Skill Creator — tool ของ Anthropic สำหรับสร้าง skill ให้ตรง pattern'
+        ]
+      },
+      {
+        type: 'callout',
+        icon: '🔍',
+        title: 'วิธีเช็คว่า Agent รู้จัก skill หรือยัง',
+        content: 'ใช้คำสั่ง SKILL LIST (Cursor, Codex) หรือ SKILL LIST (Gemini)\n\nถ้า Agent ไปอ่านไฟล์ skill.md เพิ่มตอนทำงาน\nแปลว่าคุณทำอะไรผิดเกี่ยวกับการโหลด skill',
+        highlight: 'ควรเช็คทุกครั้งหลังจากลง skill ใหม่'
+      },
+      {
+        type: 'tip',
+        title: 'Cursor vs Agent Folder',
+        content: 'Cursor ใช้ .cursor folder ไม่ใช่ .agent \n\nถ้าจะใช้ skill ร่วมกันระหว่าง Cursor กับ Agent อื่น:\n1. เปลี่ยนชื่อ folder เป็น .cursor\n2. หรือใช้ symlink: .cursor → .agent',
+        highlight: 'Cursor มี Skill Creator ที่เขียน skill ได้สวยที่สุดในตอนนี้'
+      },
+      {
+        type: 'list',
+        title: 'ข้อควรรู้',
+        items: [
+          'skill description ไม่ควรเกิน 2-3 ประโยค (~1,024 ตัวอักษร)',
+          'instruction ไม่ควรเกิน 500 tokens (~5,000 บรรทัด)',
+          'ไม่ต้องเขียนสิ่งที่ AI Agent รู้อยู่แล้ว (ตัวแปร, type, basic patterns)',
+          'skill อยู่ได้ 2 ระดับ: User (global) และ Project',
+          'skill จากภายนอกมักจะลงที่ระดับ User — ควรตรวจสอบทุกครั้ง'
+        ]
+      },
+      {
+        type: 'center',
+        content: 'Skill ที่ควรสร้างไว้ในโปรเจค',
+        sub: 'อะไรที่คุณต้องบอกทีมซ้ำๆ อะไรที่คุณต้องไปเปิดหาอ้างอิงประจำ\nอะไรที่คุณต้องรันคำสั่งเดิมทุกครั้ง — สิ่งเหล่านี้คือ Skill'
+      },
+      {
+        type: 'end',
+        content: 'สรุป',
+        bullet1: 'Agent Skill = มาตรฐานในการเพิ่มความเชี่ยวชาญให้ AI Agent',
+        bullet2: 'Frontmatter = หัวใจ — ต้องเขียนดี เพราะ Agent อ่าน metadata ก่อน',
+        bullet3: 'ใช้ Skill Creator ของ Cursor เพื่อให้ได้ skill ที่ตรง pattern',
+        bullet4: '3 ประเภท: Best Practice, Connector, Information',
+        highlight: 'อะไรที่คุณใช้ประจำ — ทำให้เป็น Skill'
+      }
+    ];
+
+    let visibleBeats = 0;
+    const totalBeats = beats.length;
+    const contentEl = document.getElementById('content');
+    const counterEl = document.getElementById('counter');
+    const dotsEl = document.getElementById('progress-dots');
+    const backBtn = document.getElementById('back-btn');
+    const hintEl = document.getElementById('hint');
+
+    beats.forEach(() => {
+      const dot = document.createElement('div');
+      dot.className = 'h-1.5 rounded-full transition-all duration-500 bg-slate-200';
+      dot.style.width = '6px';
+      dotsEl.appendChild(dot);
+    });
+
+    function updateProgress() {
+      counterEl.textContent = `${visibleBeats} / ${totalBeats}`;
+      const dots = dotsEl.querySelectorAll('div');
+      dots.forEach((dot, i) => {
+        if (i < visibleBeats) {
+          dot.className = 'h-1.5 rounded-full transition-all duration-500 bg-indigo-500';
+          dot.style.width = '20px';
+        } else {
+          dot.className = 'h-1.5 rounded-full transition-all duration-500 bg-slate-200';
+          dot.style.width = '6px';
+        }
+      });
+      backBtn.disabled = visibleBeats <= 1;
+      hintEl.textContent = visibleBeats >= totalBeats ? '♥ เริ่มใหม่' : 'คลิกหรือกด Space เพื่อไปต่อ';
+    }
+
+    function renderBeat(beat, i) {
+      const div = document.createElement('div');
+      div.className = 'animate-fade-up';
+
+      switch(beat.type) {
+        case 'title':
+          div.innerHTML = `
+            <div class="text-center py-16 md:py-20">
+              <div class="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 text-indigo-600 text-xs font-medium rounded-full mb-6">Mylo</div>
+              <h1 class="text-5xl md:text-6xl font-bold text-slate-900 mb-4 leading-tight">${beat.content}</h1>
+              <p class="text-lg text-slate-500 whitespace-pre-line leading-relaxed max-w-lg mx-auto">${beat.sub}</p>
+              <p class="mt-6 text-sm text-slate-400">${beat.by}</p>
+            </div>`;
+          break;
+
+        case 'question':
+          div.innerHTML = `
+            <div class="bg-slate-50 rounded-2xl p-8 md:p-10 border border-slate-100">
+              <p class="text-xs text-indigo-500 font-semibold uppercase tracking-wider mb-2">หัวข้อ</p>
+              <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mb-4">${beat.content}</h2>
+              <p class="text-base text-slate-600 whitespace-pre-line leading-relaxed">${beat.sub}</p>
+            </div>`;
+          break;
+
+        case 'compare':
+          div.innerHTML = `
+            <div class="rounded-2xl p-8 md:p-10">
+              <p class="text-xs text-indigo-500 font-semibold uppercase tracking-wider mb-4 text-center">${beat.title}</p>
+              <div class="grid grid-cols-2 gap-4">
+                <div class="bg-slate-50 rounded-xl p-6 border border-slate-100">
+                  <div class="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center mb-3">
+                    <span class="text-indigo-600 font-bold">${beat.left.label}</span>
+                  </div>
+                  <p class="text-sm text-slate-600 whitespace-pre-line leading-relaxed">${beat.left.desc}</p>
+                </div>
+                <div class="bg-indigo-50 rounded-xl p-6 border border-indigo-100">
+                  <div class="w-10 h-10 rounded-lg bg-indigo-600 flex items-center justify-center mb-3">
+                    <span class="text-white font-bold">${beat.right.label}</span>
+                  </div>
+                  <p class="text-sm text-slate-700 whitespace-pre-line leading-relaxed">${beat.right.desc}</p>
+                </div>
+              </div>
+            </div>`;
+          break;
+
+        case 'section':
+          div.innerHTML = `
+            <div class="py-4">
+              <h2 class="text-xl font-bold text-slate-900 mb-6 text-center">${beat.title}</h2>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                ${beat.items.map(item => `
+                  <div class="bg-slate-50 rounded-xl p-6 border border-slate-100">
+                    <div class="text-2xl mb-3">${item.icon}</div>
+                    <h3 class="font-semibold text-slate-900 mb-2">${item.label}</h3>
+                    <p class="text-sm text-slate-500 whitespace-pre-line leading-relaxed">${item.desc}</p>
+                  </div>
+                `).join('')}
+              </div>
+            </div>`;
+          break;
+
+        case 'callout':
+          div.innerHTML = `
+            <div class="bg-indigo-50 rounded-2xl p-8 border border-indigo-100">
+              <div class="flex items-start gap-4">
+                <span class="text-2xl flex-shrink-0">${beat.icon}</span>
+                <div>
+                  <h3 class="font-semibold text-slate-900 mb-2">${beat.title}</h3>
+                  <p class="text-sm text-slate-600 whitespace-pre-line leading-relaxed mb-3">${beat.content}</p>
+                  <div class="bg-white rounded-lg p-4 border border-indigo-200">
+                    <p class="text-sm text-indigo-700 font-medium">${beat.highlight}</p>
+                  </div>
+                </div>
+              </div>
+            </div>`;
+          break;
+
+        case 'list':
+          div.innerHTML = `
+            <div class="py-2">
+              ${beat.title ? `<h2 class="text-xl font-bold text-slate-900 mb-5">${beat.title}</h2>` : ''}
+              <ul class="space-y-3">
+                ${beat.items.map((item, i) => `
+                  <li class="flex items-start gap-3 text-sm text-slate-700">
+                    <span class="flex-shrink-0 w-5 h-5 rounded-full bg-indigo-100 text-indigo-600 text-xs font-bold flex items-center justify-center mt-0.5">${i + 1}</span>
+                    <span class="leading-relaxed">${item}</span>
+                  </li>
+                `).join('')}
+              </ul>
+            </div>`;
+          break;
+
+        case 'step':
+          div.innerHTML = `
+            <div class="rounded-2xl p-8 md:p-10">
+              <h2 class="text-xl font-bold text-slate-900 mb-6 text-center">${beat.title}</h2>
+              <div class="space-y-4">
+                ${beat.steps.map(step => `
+                  <div class="flex items-start gap-4 bg-slate-50 rounded-xl p-5 border border-slate-100">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center">
+                      <span class="text-white text-sm font-bold">${step.num}</span>
+                    </div>
+                    <div>
+                      <p class="font-semibold text-slate-900 text-sm">${step.label}</p>
+                      <p class="text-sm text-slate-500">${step.desc}</p>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+              ${beat.tip ? `<div class="mt-4 p-4 bg-amber-50 rounded-xl border border-amber-100"><p class="text-sm text-amber-700">💡 ${beat.tip}</p></div>` : ''}
+            </div>`;
+          break;
+
+        case 'tip':
+          div.innerHTML = `
+            <div class="bg-amber-50 rounded-2xl p-8 border border-amber-100">
+              <h3 class="font-semibold text-slate-900 mb-3">${beat.title}</h3>
+              <p class="text-sm text-slate-600 whitespace-pre-line leading-relaxed mb-3">${beat.content}</p>
+              <div class="bg-white rounded-lg p-4 border border-amber-200">
+                <p class="text-sm text-amber-700 font-medium">${beat.highlight}</p>
+              </div>
+            </div>`;
+          break;
+
+        case 'center':
+          div.innerHTML = `
+            <div class="text-center py-12">
+              <p class="text-2xl md:text-3xl font-bold text-slate-900 mb-4">${beat.content}</p>
+              <p class="text-base text-slate-500 whitespace-pre-line leading-relaxed max-w-lg mx-auto">${beat.sub}</p>
+            </div>`;
+          break;
+
+        case 'end':
+          div.innerHTML = `
+            <div class="text-center py-12">
+              <h2 class="text-3xl font-bold text-slate-900 mb-8">${beat.content}</h2>
+              <div class="space-y-3 text-left max-w-lg mx-auto mb-8">
+                <p class="flex items-start gap-3 text-sm text-slate-700"><span class="flex-shrink-0 w-5 h-5 rounded-full bg-indigo-600 text-white text-xs font-bold flex items-center justify-center mt-0.5">✓</span> ${beat.bullet1}</p>
+                <p class="flex items-start gap-3 text-sm text-slate-700"><span class="flex-shrink-0 w-5 h-5 rounded-full bg-indigo-600 text-white text-xs font-bold flex items-center justify-center mt-0.5">✓</span> ${beat.bullet2}</p>
+                <p class="flex items-start gap-3 text-sm text-slate-700"><span class="flex-shrink-0 w-5 h-5 rounded-full bg-indigo-600 text-white text-xs font-bold flex items-center justify-center mt-0.5">✓</span> ${beat.bullet3}</p>
+                <p class="flex items-start gap-3 text-sm text-slate-700"><span class="flex-shrink-0 w-5 h-5 rounded-full bg-indigo-600 text-white text-xs font-bold flex items-center justify-center mt-0.5">✓</span> ${beat.bullet4}</p>
+              </div>
+              <div class="inline-block bg-indigo-600 text-white rounded-xl px-6 py-3">
+                <p class="text-lg font-semibold">${beat.highlight}</p>
+              </div>
+              <p class="mt-10 text-xs text-slate-400">Mylo — AI Engineer Channel</p>
+            </div>`;
+          break;
+      }
+
+      return div;
+    }
+
+    function advance() {
+      if (visibleBeats >= totalBeats) {
+        contentEl.innerHTML = '';
+        visibleBeats = 0;
+        updateProgress();
+        setTimeout(advance, 200);
+        return;
+      }
+      const el = renderBeat(beats[visibleBeats], visibleBeats);
+      contentEl.appendChild(el);
+      visibleBeats++;
+      updateProgress();
+      setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+    }
+
+    function goBack() {
+      if (visibleBeats <= 1) return;
+      contentEl.removeChild(contentEl.lastChild);
+      visibleBeats--;
+      updateProgress();
+      if (contentEl.lastChild) {
+        setTimeout(() => contentEl.lastChild.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+      }
+    }
+
+    document.addEventListener('click', (e) => {
+      if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') return;
+      if (e.target.closest('#back-btn')) return;
+      if (e.target.closest('.fixed.bottom-0')) return;
+      advance();
+    });
+
+    backBtn.addEventListener('click', (e) => { e.stopPropagation(); goBack(); });
+
+    document.addEventListener('keydown', (e) => {
+      if (['ArrowRight', ' ', 'Enter', 'ArrowDown'].includes(e.key)) { e.preventDefault(); advance(); }
+      if (['ArrowLeft', 'ArrowUp'].includes(e.key)) { e.preventDefault(); goBack(); }
+    });
+
+    updateProgress();
+  </script>
+</body>
+</html>

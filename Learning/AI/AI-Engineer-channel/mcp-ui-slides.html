@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MCP UI: Extending the Frontier</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  * { font-family: 'Inter', sans-serif; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+  @keyframes slideLeft { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+  @keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.1); } 50% { box-shadow: 0 0 40px rgba(99, 102, 241, 0.3); } }
+  .animate-fade-in { animation: fadeIn 0.6s ease-out forwards; }
+  .animate-scale-in { animation: scaleIn 0.5s ease-out forwards; }
+  .animate-slide-left { animation: slideLeft 0.5s ease-out forwards; }
+  .shimmer-bg { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent); background-size: 200% 100%; animation: shimmer 3s infinite; }
+  .glow-card { animation: pulse-glow 3s ease-in-out infinite; }
+  .glass-card { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.3); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(99, 102, 241, 0.5); }
+  body { min-height: 100vh; }
+  .grid-pattern {
+    background-image: radial-gradient(circle at 1px 1px, rgba(99, 102, 241, 0.06) 1px, transparent 0);
+    background-size: 32px 32px;
+  }
+</style>
+</head>
+<body class="bg-slate-950 cursor-pointer select-none overflow-x-hidden">
+  <!-- Grid overlay -->
+  <div class="fixed inset-0 pointer-events-none grid-pattern opacity-60"></div>
+
+  <!-- Gradient orbs -->
+  <div class="fixed top-[-20%] left-[-10%] w-[60%] h-[60%] bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none"></div>
+  <div class="fixed bottom-[-20%] right-[-10%] w-[60%] h-[60%] bg-violet-600/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+  <!-- Top progress bar -->
+  <div class="fixed top-0 left-0 right-0 z-20 bg-gradient-to-b from-slate-950 via-slate-950/95 to-transparent pb-8 pt-4">
+    <div id="progress-bar" class="max-w-5xl mx-auto px-6 flex justify-between items-center">
+      <div id="counter" class="text-sm text-slate-500 font-mono font-medium">0 / 0</div>
+      <div id="progress-dots" class="flex items-center gap-1.5"></div>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="relative z-10 max-w-5xl mx-auto px-6 pt-20 pb-32">
+    <div id="content" class="space-y-8"></div>
+  </div>
+
+  <!-- Bottom navigation -->
+  <div class="fixed bottom-0 left-0 right-0 z-20 bg-gradient-to-t from-slate-950 via-slate-950/95 to-transparent pt-8 pb-6">
+    <div class="max-w-5xl mx-auto px-6 flex justify-between items-end">
+      <button id="back-btn" class="text-slate-500 hover:text-indigo-400 transition-colors duration-200 text-sm font-mono disabled:opacity-20 disabled:cursor-not-allowed" disabled>
+        ← Back
+      </button>
+      <div class="text-right">
+        <p id="hint" class="text-xs text-slate-600 font-mono">Click or press Space to advance</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const beats = [
+      {
+        type: 'opening',
+        content: 'MCP UI',
+        subContent: 'Extending the Frontier — How Interactive UI is Redefining AI-Assisted Computing',
+        meta: 'Liad Yosef & Ido Salomon'
+      },
+      {
+        type: 'argument',
+        title: 'The Problem',
+        content: 'Text is a terrible interface for AI interactions.',
+        subContent: 'When services like Shopify, Booking, or Expedia send data to AI chatbots, they lose their identity — reduced to a wall of text. Companies spend decades perfecting their UX, only to have it stripped away in the AI era.'
+      },
+      {
+        type: 'insight',
+        icon: '💡',
+        title: 'The Core Insight',
+        content: 'What if every service could send its own native UI to the chat?',
+        subContent: 'Instead of parsing text, the AI assistant renders real, interactive interfaces — preserving branding, functionality, and user experience.'
+      },
+      {
+        type: 'phase',
+        phase: '01',
+        title: 'What Are MCP Apps?',
+        content: 'A standardized protocol for passing interactive UI over the Model Context Protocol.',
+        items: [
+          'Returns HTML resources instead of plain text from MCP tools',
+          'UI chunks are rendered inside a secure sandbox by the host',
+          'Bidirectional: UI events flow back to the host as tool calls',
+          'Preserves brand identity, interactivity, and context awareness'
+        ]
+      },
+      {
+        type: 'architecture',
+        title: 'How It Works',
+        content: 'The end-to-end flow of an MCP App interaction.',
+        steps: [
+          { num: '01', label: 'Prompt', desc: 'User asks the AI assistant for data (e.g., "analyze my funnel")' },
+          { num: '02', label: 'Tool Call', desc: 'Host calls the MCP server to fetch the requested data' },
+          { num: '03', label: 'Resource', desc: 'Server returns an HTML resource — the interactive UI chunk' },
+          { num: '04', label: 'Render', desc: 'Host renders the UI inside a sandboxed iframe' },
+          { num: '05', label: 'Interact', desc: 'User clicks, scrolls, fills forms — events flow back to host' },
+          { num: '06', label: 'Respond', desc: 'Host processes events as tool calls or follow-up prompts' }
+        ]
+      },
+      {
+        type: 'demo',
+        title: 'Real-World Example',
+        content: 'PostHog Funnel Analysis in Claude',
+        subContent: 'Instead of a wall of text, PostHog sends its native funnel visualization. The user sees real charts, can click on specific steps, and get follow-up analysis — all within the chat.'
+      },
+      {
+        type: 'insight',
+        icon: '🔮',
+        title: 'Beyond Pre-built UI',
+        content: 'Generative UI takes it further.',
+        subContent: 'Anthropic and OpenAI now support generative UI — where the model itself creates the interface on the fly. Claude can generate an interactive funnel explainer when you ask "what is a funnel?", all built on MCP Apps under the hood.'
+      },
+      {
+        type: 'phase',
+        phase: '02',
+        title: 'The Spectrum of Control',
+        content: 'MCP Apps standardizes how UI communicates with the host across three levels.',
+        items: [
+          'Notification — UI notifies the host an event occurred (e.g., cart update → goes to Shopify)',
+          'Tool Call — UI asks the host to invoke a specific tool (e.g., "favorite this song")',
+          'Prompt — UI hands full control to the host: "run this prompt and see what happens"'
+        ],
+        footnote: 'Every click stays in context — the host always decides how to route the interaction.'
+      },
+      {
+        type: 'section',
+        title: 'Types of UI Generation',
+        items: [
+          { label: 'Predefined UI', desc: 'Classic MCP App — the service builds its own UI (black box). Best for 80% of cases where brand identity matters.', color: 'indigo' },
+          { label: 'Declarative UI', desc: 'Shared structure — the service declares layout, host renders components. Good for hosts wanting consistent look & feel.', color: 'violet' },
+          { label: 'Generative UI', desc: 'Fully AI-generated — the model creates UI on the fly. Perfect for first-party experiences and ad-hoc visualizations.', color: 'fuchsia' }
+        ]
+      },
+      {
+        type: 'adoption',
+        title: 'Massive Industry Adoption',
+        items: [
+          { name: 'Claude (Anthropic)', role: 'First host to support MCP Apps' },
+          { name: 'ChatGPT (OpenAI)', role: 'Recommends MCP Apps as the way to build' },
+          { name: 'VS Code & Cursor', role: 'IDEs with built-in MCP App rendering' },
+          { name: 'GitHub Copilot', role: 'Interactive UI in code assistance' },
+          { name: 'Microsoft Copilot', role: 'Enterprise MCP App support' },
+          { name: 'Postman & Goose', role: 'API tools embracing MCP UI' },
+          { name: 'Spy', role: 'Terminal with UI support' }
+        ]
+      },
+      {
+        type: 'stat',
+        stat: '800M → 1B+',
+        label: 'Weekly ChatGPT Users',
+        subContent: 'That\'s 10% of the world\'s population — 160× the iPhone App Store launch audience. The distribution potential is unprecedented.'
+      },
+      {
+        type: 'vision',
+        title: 'A New Web',
+        content: 'The traditional website is evolving.',
+        subContent: 'Instead of juggling dozens of tabs, your personal AI assistant orchestrates UI chunks from multiple services — Booking, Amazon, Google Calendar — all in one conversation. Services keep their identity. Users keep their context. The assistant knows your preferences.'
+      },
+      {
+        type: 'insight',
+        icon: '🌐',
+        title: 'Win-Win-Win',
+        content: 'Services keep brand identity. Users get familiar interfaces. Hosts leverage domain expertise.',
+        subContent: 'Companies that spent decades perfecting user journeys don\'t get reduced to databases. They become first-class citizens in the AI interface layer.'
+      },
+      {
+        type: 'phase',
+        phase: '03',
+        title: 'Getting Started',
+        content: 'Two paths to join the MCP Apps ecosystem.',
+        items: [
+          'As a Server (App Provider) — Use the XApps SDK. Just push a skill to Claude Code and generate an MCP App. Zero manual coding required.',
+          'As a Host (Client) — Use the MCP UI SDK (React component). Fully spec-compliant. Get hundreds of apps from Booking, PostHog, and more out of the box.'
+        ]
+      },
+      {
+        type: 'insight',
+        icon: '🚀',
+        title: 'Write Once, Run Everywhere',
+        content: 'The same MCP App works across every host.',
+        subContent: 'LibreChat, ChatGPT, Claude, VS Code — the same codebase runs everywhere. MCP Apps is the universal distribution layer for AI-native interfaces.'
+      },
+      {
+        type: 'community',
+        title: 'Join the Movement',
+        items: [
+          { name: 'Official MCP Apps Repo', url: 'github.com/anthropics/xapps', desc: 'Specification, SDK, and open issues' },
+          { name: 'MCP Apps Work Group', desc: 'Tri-weekly public meetings to evolve the standard' },
+          { name: 'Community Discord', desc: 'Builders, hosts, and users sharing tips and troubleshooting' },
+          { name: 'Open a PR / Issue', desc: 'Shape the future of UI in agents' }
+        ]
+      },
+      {
+        type: 'productivity',
+        title: 'What\'s Next?',
+        items: [
+          { icon: '🔄', title: 'Reusable Views', desc: 'Avoid re-rendering heavy apps — reference and push data to existing views instead. Solving Autodesk-scale performance.' },
+          { icon: '🤖', title: 'Model-to-UI Interaction', desc: 'Let AI models click buttons and fill forms inside MCP Apps — closing the loop between model and interface.' },
+          { icon: '🔗', title: 'Interoperability', desc: 'Bridging MCP Apps with A2UI (Google), WebMCP, and more to create one unified standard for UI in chat.' }
+        ]
+      },
+      {
+        type: 'closing',
+        content: 'A Once-in-20-Years Opportunity',
+        subContent: 'This isn\'t just a protocol — it\'s a new way to distribute applications. Think about your core UX, decompose it into chunks, and let AI assistants assemble them into something greater.',
+        highlight: 'The web is being reimagined. Don\'t adapt — architect.'
+      }
+    ];
+
+    // --- State ---
+    let visibleBeats = 0;
+    const totalBeats = beats.length;
+    const contentEl = document.getElementById('content');
+    const counterEl = document.getElementById('counter');
+    const dotsEl = document.getElementById('progress-dots');
+    const backBtn = document.getElementById('back-btn');
+    const hintEl = document.getElementById('hint');
+
+    // --- Init dots ---
+    beats.forEach(() => {
+      const dot = document.createElement('div');
+      dot.className = 'h-1.5 rounded-full transition-all duration-500 bg-slate-800';
+      dot.style.width = '6px';
+      dotsEl.appendChild(dot);
+    });
+
+    function updateProgress() {
+      counterEl.textContent = `${visibleBeats} / ${totalBeats}`;
+      const dots = dotsEl.querySelectorAll('div');
+      dots.forEach((dot, i) => {
+        if (i < visibleBeats) {
+          dot.className = 'h-1.5 rounded-full transition-all duration-500 bg-gradient-to-r from-indigo-500 to-violet-500';
+          dot.style.width = '24px';
+        } else {
+          dot.className = 'h-1.5 rounded-full transition-all duration-500 bg-slate-800';
+          dot.style.width = '6px';
+        }
+      });
+      backBtn.disabled = visibleBeats <= 1;
+      if (visibleBeats >= totalBeats) {
+        hintEl.textContent = '🎉 You\'ve reached the end — click to restart';
+      } else {
+        hintEl.textContent = 'Click or press Space to advance';
+      }
+    }
+
+    function renderBeat(beat, index) {
+      const div = document.createElement('div');
+      div.className = 'animate-fade-in';
+
+      switch (beat.type) {
+        case 'opening':
+          div.innerHTML = `
+            <div class="text-center py-16 md:py-24">
+              <p class="text-sm text-indigo-400 uppercase tracking-[0.3em] font-medium mb-6">Liad Yosef & Ido Salomon</p>
+              <h1 class="text-6xl md:text-8xl font-black tracking-tight mb-4 bg-gradient-to-r from-indigo-200 via-violet-200 to-fuchsia-200 bg-clip-text text-transparent leading-[1.1]">
+                ${beat.content}
+              </h1>
+              <p class="text-xl md:text-2xl text-slate-400 font-light max-w-2xl mx-auto leading-relaxed">
+                ${beat.subContent}
+              </p>
+              <div class="mt-8 inline-flex items-center gap-2 text-xs text-slate-600 font-mono bg-slate-900/50 border border-slate-800 rounded-full px-4 py-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                AI Engineer World's Fair 2026
+              </div>
+            </div>`;
+          break;
+
+        case 'argument':
+          div.innerHTML = `
+            <div class="bg-slate-900/60 border border-slate-800 rounded-3xl p-8 md:p-12 glow-card">
+              <p class="text-xs text-indigo-400 uppercase tracking-[0.2em] font-semibold mb-3">${beat.title}</p>
+              <h2 class="text-3xl md:text-4xl font-bold text-white mb-4 leading-tight">${beat.content}</h2>
+              <p class="text-lg text-slate-400 leading-relaxed max-w-3xl">${beat.subContent}</p>
+            </div>`;
+          break;
+
+        case 'insight':
+          div.innerHTML = `
+            <div class="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-800 rounded-3xl p-8 md:p-12">
+              <div class="flex items-start gap-6">
+                <div class="text-5xl flex-shrink-0 mt-1">${beat.icon}</div>
+                <div>
+                  <p class="text-sm text-indigo-400 uppercase tracking-[0.2em] font-semibold mb-2">Key Insight</p>
+                  <h2 class="text-2xl md:text-3xl font-bold text-white mb-4 leading-tight">${beat.content}</h2>
+                  <p class="text-lg text-slate-400 leading-relaxed">${beat.subContent}</p>
+                </div>
+              </div>
+            </div>`;
+          break;
+
+        case 'phase':
+          div.innerHTML = `
+            <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-900/40 via-violet-900/30 to-slate-900 border border-indigo-800/30 p-8 md:p-12">
+              <div class="absolute top-4 right-6 text-9xl font-black text-white/5 select-none">${beat.phase.padStart(2, '0')}</div>
+              <div class="relative z-10">
+                <p class="text-xs text-indigo-400 uppercase tracking-[0.2em] font-semibold mb-2">Chapter ${beat.phase}</p>
+                <h2 class="text-3xl md:text-4xl font-bold text-white mb-4 leading-tight">${beat.title}</h2>
+                <p class="text-lg text-slate-300 mb-6 leading-relaxed">${beat.content}</p>
+                <ul class="space-y-3">
+                  ${beat.items.map((item, i) => `
+                    <li class="flex items-start gap-3 text-slate-400">
+                      <span class="flex-shrink-0 w-5 h-5 rounded-full bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center mt-0.5">
+                        <span class="text-indigo-400 text-xs font-bold">${i + 1}</span>
+                      </span>
+                      <span class="text-base leading-relaxed">${item}</span>
+                    </li>
+                  `).join('')}
+                </ul>
+                ${beat.footnote ? `<p class="mt-6 text-sm text-indigo-400/70 border-l-2 border-indigo-500/40 pl-4 italic">${beat.footnote}</p>` : ''}
+              </div>
+            </div>`;
+          break;
+
+        case 'architecture':
+          div.innerHTML = `
+            <div class="bg-slate-900/60 border border-slate-800 rounded-3xl p-8 md:p-12">
+              <p class="text-xs text-indigo-400 uppercase tracking-[0.2em] font-semibold mb-2">Architecture</p>
+              <h2 class="text-3xl md:text-4xl font-bold text-white mb-3">${beat.title}</h2>
+              <p class="text-lg text-slate-400 mb-8">${beat.content}</p>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                ${beat.steps.map(step => `
+                  <div class="flex items-start gap-4 p-5 rounded-2xl bg-slate-800/40 border border-slate-700/50">
+                    <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center">
+                      <span class="text-white text-sm font-bold">${step.num}</span>
+                    </div>
+                    <div class="min-w-0">
+                      <p class="text-white font-semibold text-sm uppercase tracking-wider">${step.label}</p>
+                      <p class="text-slate-400 text-sm mt-1">${step.desc}</p>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>`;
+          break;
+
+        case 'demo':
+          div.innerHTML = `
+            <div class="bg-gradient-to-br from-slate-900/80 to-indigo-950/30 border border-indigo-800/30 rounded-3xl p-8 md:p-12">
+              <p class="text-xs text-indigo-400 uppercase tracking-[0.2em] font-semibold mb-2">Live Demo</p>
+              <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">${beat.title}</h2>
+              <p class="text-lg text-slate-300">${beat.content}</p>
+              <div class="mt-6 p-5 rounded-2xl bg-slate-950/60 border border-slate-800">
+                <p class="text-slate-400 leading-relaxed">${beat.subContent}</p>
+              </div>
+            </div>`;
+          break;
+
+        case 'section':
+          div.innerHTML = `
+            <div class="rounded-3xl p-8 md:p-12">
+              <h2 class="text-3xl md:text-4xl font-bold text-white mb-8 text-center">${beat.title}</h2>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                ${beat.items.map(item => `
+                  <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-${item.color}-500/50 transition-all duration-300">
+                    <div class="w-10 h-10 rounded-xl bg-${item.color}-500/20 border border-${item.color}-500/30 flex items-center justify-center mb-4">
+                      <div class="w-4 h-4 rounded-full bg-${item.color}-500"></div>
+                    </div>
+                    <h3 class="text-white font-bold text-lg mb-2">${item.label}</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">${item.desc}</p>
+                  </div>
+                `).join('')}
+              </div>
+            </div>`;
+          break;
+
+        case 'adoption':
+          div.innerHTML = `
+            <div class="bg-slate-900/60 border border-slate-800 rounded-3xl p-8 md:p-12">
+              <h2 class="text-3xl md:text-4xl font-bold text-white mb-8 text-center">${beat.title}</h2>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                ${beat.items.map(item => `
+                  <div class="flex items-center gap-4 p-4 rounded-2xl bg-slate-800/30 border border-slate-700/50">
+                    <div class="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500/20 to-violet-500/20 border border-indigo-500/30 flex items-center justify-center">
+                      <span class="text-indigo-400 text-lg">◆</span>
+                    </div>
+                    <div>
+                      <p class="text-white font-semibold">${item.name}</p>
+                      <p class="text-slate-500 text-sm">${item.role}</p>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>`;
+          break;
+
+        case 'stat':
+          div.innerHTML = `
+            <div class="text-center py-12">
+              <p class="text-5xl md:text-7xl font-black bg-gradient-to-r from-indigo-300 via-violet-300 to-fuchsia-300 bg-clip-text text-transparent mb-3">
+                ${beat.stat}
+              </p>
+              <p class="text-lg text-slate-500 font-medium uppercase tracking-wider mb-4">${beat.label}</p>
+              <p class="text-base text-slate-500 max-w-xl mx-auto leading-relaxed">${beat.subContent}</p>
+            </div>`;
+          break;
+
+        case 'vision':
+          div.innerHTML = `
+            <div class="bg-gradient-to-br from-slate-900 via-indigo-950/20 to-slate-900 border border-slate-800 rounded-3xl p-8 md:p-12">
+              <div class="flex items-center gap-3 mb-4">
+                <div class="w-8 h-0.5 bg-indigo-500/60"></div>
+                <p class="text-xs text-indigo-400 uppercase tracking-[0.2em] font-semibold">Vision</p>
+              </div>
+              <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">${beat.title}</h2>
+              <p class="text-lg text-slate-300 leading-relaxed mb-4">${beat.content}</p>
+              <p class="text-base text-slate-400 leading-relaxed">${beat.subContent}</p>
+            </div>`;
+          break;
+
+        case 'community':
+          div.innerHTML = `
+            <div class="rounded-3xl p-8 md:p-12 bg-gradient-to-br from-indigo-950/30 via-slate-900/60 to-violet-950/30 border border-indigo-800/20">
+              <h2 class="text-3xl md:text-4xl font-bold text-white mb-8 text-center">${beat.title}</h2>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                ${beat.items.map(item => `
+                  <div class="p-5 rounded-2xl bg-slate-800/40 border border-slate-700/50 hover:border-indigo-500/30 transition-all duration-300">
+                    <h3 class="text-white font-semibold mb-2">${item.name}</h3>
+                    <p class="text-slate-400 text-sm">${item.desc}</p>
+                  </div>
+                `).join('')}
+              </div>
+              <div class="mt-8 text-center">
+                <p class="text-slate-500 text-sm font-mono">github.com/anthropics/xapps</p>
+              </div>
+            </div>`;
+          break;
+
+        case 'productivity':
+          div.innerHTML = `
+            <div class="rounded-3xl p-8 md:p-12">
+              <h2 class="text-3xl md:text-4xl font-bold text-white mb-8 text-center">${beat.title}</h2>
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                ${beat.items.map(item => `
+                  <div class="p-6 rounded-2xl bg-slate-900/60 border border-slate-800">
+                    <div class="text-4xl mb-4">${item.icon}</div>
+                    <h3 class="text-white font-bold text-lg mb-2">${item.title}</h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">${item.desc}</p>
+                  </div>
+                `).join('')}
+              </div>
+            </div>`;
+          break;
+
+        case 'closing':
+          div.innerHTML = `
+            <div class="text-center py-16 md:py-24">
+              <h2 class="text-4xl md:text-6xl font-black text-white mb-6 leading-tight">${beat.content}</h2>
+              <p class="text-xl text-slate-300 font-light max-w-2xl mx-auto leading-relaxed mb-8">${beat.subContent}</p>
+              <div class="inline-block p-5 rounded-2xl bg-gradient-to-r from-indigo-500/10 to-violet-500/10 border border-indigo-500/20">
+                <p class="text-lg text-indigo-300 font-semibold italic">"${beat.highlight}"</p>
+              </div>
+              <div class="mt-12 text-slate-600 text-sm font-mono">Built with MCP Apps • AI Engineer World's Fair 2026</div>
+            </div>`;
+          break;
+      }
+
+      return div;
+    }
+
+    function advance() {
+      if (visibleBeats >= totalBeats) {
+        // Restart
+        contentEl.innerHTML = '';
+        visibleBeats = 0;
+        updateProgress();
+        setTimeout(advance, 200);
+        return;
+      }
+      const beat = beats[visibleBeats];
+      const el = renderBeat(beat, visibleBeats);
+      contentEl.appendChild(el);
+      visibleBeats++;
+      updateProgress();
+      setTimeout(() => {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
+    }
+
+    function goBack() {
+      if (visibleBeats <= 1) return;
+      contentEl.removeChild(contentEl.lastChild);
+      visibleBeats--;
+      updateProgress();
+      if (contentEl.lastChild) {
+        setTimeout(() => {
+          contentEl.lastChild.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+      }
+    }
+
+    // --- Event listeners ---
+    document.addEventListener('click', (e) => {
+      if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') return;
+      if (e.target.closest('#back-btn')) return;
+      if (e.target.closest('.fixed.bottom-0')) return;
+      advance();
+    });
+
+    backBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      goBack();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (['ArrowRight', ' ', 'Enter', 'ArrowDown'].includes(e.key)) {
+        e.preventDefault();
+        advance();
+      }
+      if (['ArrowLeft', 'ArrowUp'].includes(e.key)) {
+        e.preventDefault();
+        goBack();
+      }
+    });
+
+    // --- Initial render ---
+    updateProgress();
+  </script>
+</body>
+</html>
