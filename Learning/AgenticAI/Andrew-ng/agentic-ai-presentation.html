@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agentic AI — Building Applications with Agentic Workflows</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ===========================================
+   ELECTRIC STUDIO PRESET + MANDATORY BASE
+   =========================================== */
+:root {
+    --cobalt: #0047AB;
+    --cobalt-light: #2563EB;
+    --black: #0a0a0a;
+    --white: #ffffff;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-400: #9ca3af;
+    --gray-600: #4b5563;
+    --gray-800: #1f2937;
+
+    --title-size: clamp(2rem, 5.5vw, 4.5rem);
+    --h2-size: clamp(1.5rem, 3.8vw, 2.8rem);
+    --h3-size: clamp(1.1rem, 2.4vw, 1.6rem);
+    --body-size: clamp(0.85rem, 1.4vw, 1.1rem);
+    --small-size: clamp(0.7rem, 1vw, 0.9rem);
+
+    --slide-padding: clamp(1.25rem, 4vw, 4rem);
+    --content-gap: clamp(0.75rem, 2vw, 2rem);
+    --element-gap: clamp(0.4rem, 1vw, 1rem);
+}
+
+html, body { height: 100%; overflow-x: hidden; }
+html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+body {
+    font-family: 'Manrope', sans-serif;
+    margin: 0;
+    background: var(--black);
+    color: var(--white);
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+}
+
+.slide {
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+.slide-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-height: 100%;
+    overflow: hidden;
+    padding: var(--slide-padding);
+    box-sizing: border-box;
+}
+
+/* Utilities */
+.two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--content-gap);
+    align-items: center;
+}
+.three-col {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--content-gap);
+}
+.grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--content-gap);
+}
+
+.tag {
+    display: inline-block;
+    padding: 0.2em 0.6em;
+    border: 1px solid var(--cobalt);
+    color: var(--cobalt);
+    font-size: var(--small-size);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: var(--element-gap);
+}
+.slide-dark .tag { color: #60a5fa; border-color: #60a5fa; }
+.label { color: var(--cobalt); }
+.slide-dark .label { color: #60a5fa; }
+.blue-accent { color: var(--cobalt); }
+.slide-dark .blue-accent { color: #60a5fa; }
+
+.label {
+    font-size: var(--small-size);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--cobalt-light);
+    margin-bottom: 0.4em;
+}
+
+.section-label {
+    font-size: var(--small-size);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--gray-400);
+    margin-bottom: var(--element-gap);
+}
+
+h1 { font-size: var(--title-size); font-weight: 800; line-height: 1.05; margin: 0 0 var(--element-gap); letter-spacing: -0.02em; }
+h2 { font-size: var(--h2-size); font-weight: 700; line-height: 1.15; margin: 0 0 var(--element-gap); letter-spacing: -0.01em; }
+h3 { font-size: var(--h3-size); font-weight: 600; line-height: 1.3; margin: 0 0 var(--element-gap); }
+p, li { font-size: var(--body-size); margin: 0 0 var(--element-gap); color: var(--gray-100); }
+ul, ol { padding-left: 1.2em; margin: 0; }
+li { margin-bottom: 0.35em; }
+strong { color: var(--white); font-weight: 700; }
+
+.card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    padding: clamp(0.8rem, 2vw, 1.5rem);
+    border-radius: 4px;
+}
+
+.blue-accent { color: var(--cobalt-light); }
+.gray-text { color: var(--gray-400); }
+
+.divider { width: 60px; height: 3px; background: var(--cobalt-light); margin: var(--element-gap) 0; }
+
+.quote {
+    font-style: italic;
+    font-size: clamp(1rem, 2.2vw, 1.4rem);
+    line-height: 1.5;
+    color: var(--gray-200);
+    border-left: 3px solid var(--cobalt-light);
+    padding-left: 1rem;
+    margin: var(--content-gap) 0;
+}
+
+.author { font-size: var(--small-size); color: var(--gray-400); margin-top: 0.5em; font-style: normal; font-weight: 500; }
+
+.stat-number {
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-weight: 800;
+    color: var(--cobalt-light);
+    line-height: 1;
+    letter-spacing: -0.03em;
+}
+.stat-label { font-size: var(--small-size); color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 0.4em; }
+
+/* Specific slide layouts */
+.slide-dark { background: var(--black); }
+.slide-white { background: var(--white); color: var(--black); }
+.slide-white p, .slide-white li { color: var(--gray-800); }
+.slide-white h1, .slide-white h2, .slide-white h3, .slide-white strong { color: var(--black); }
+.slide-white .card { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.08); }
+.slide-white .stat-number { color: var(--cobalt); }
+.slide-white .quote { color: var(--gray-600); border-left-color: var(--cobalt); }
+.slide-white .gray-text { color: var(--gray-600); }
+.slide-white .section-label { color: var(--gray-600); }
+.slide-white .author { color: var(--gray-600); }
+.slide-white .stat-label { color: var(--gray-600); }
+
+.accent-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 6px;
+    height: 100%;
+    background: var(--cobalt-light);
+}
+
+.progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: var(--cobalt-light);
+    z-index: 100;
+    transition: width 0.3s ease;
+    width: 0%;
+}
+
+.nav-dots {
+    position: fixed;
+    right: clamp(0.8rem, 2vw, 1.5rem);
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 100;
+}
+.nav-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.45);
+    cursor: pointer;
+    transition: background 0.3s, transform 0.3s;
+    border: none;
+    padding: 0;
+}
+.nav-dot.active { background: var(--cobalt-light); transform: scale(1.3); }
+.nav-dots.on-white .nav-dot { background: rgba(0,0,0,0.5); }
+.nav-dots.on-white .nav-dot.active { background: var(--cobalt); }
+
+.keyboard-hint {
+    position: fixed;
+    bottom: clamp(0.6rem, 1.5vw, 1rem);
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: var(--small-size);
+    color: var(--gray-200);
+    background: rgba(0,0,0,0.65);
+    padding: 0.3em 0.9em;
+    border-radius: 4px;
+    z-index: 100;
+    opacity: 0.8;
+    pointer-events: none;
+}
+
+/* Animations */
+.reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-delay-1 { transition-delay: 0.15s; }
+.reveal-delay-2 { transition-delay: 0.3s; }
+.reveal-delay-3 { transition-delay: 0.45s; }
+.reveal-delay-4 { transition-delay: 0.6s; }
+
+/* Dense slide support */
+.compact-list li { font-size: clamp(0.78rem, 1.25vw, 1rem); line-height: 1.35; margin-bottom: 0.25em; }
+.compact-grid { gap: clamp(0.5rem, 1.2vw, 1rem); }
+.compact-card { padding: clamp(0.6rem, 1.5vw, 1rem); }
+
+/* Responsive adjustments */
+@media (max-width: 900px) {
+    .two-col, .three-col, .grid-4 { grid-template-columns: 1fr; }
+}
+
+@media (max-height: 700px) {
+    :root {
+        --slide-padding: clamp(0.8rem, 3vw, 2.5rem);
+        --content-gap: clamp(0.5rem, 1.5vw, 1.2rem);
+        --title-size: clamp(1.5rem, 5vw, 3rem);
+        --h2-size: clamp(1.2rem, 3.2vw, 2rem);
+    }
+    .nav-dots, .keyboard-hint { display: none; }
+}
+
+@media (max-height: 600px) {
+    :root {
+        --slide-padding: clamp(0.6rem, 2.5vw, 1.5rem);
+        --content-gap: clamp(0.4rem, 1vw, 0.8rem);
+        --title-size: clamp(1.3rem, 4.5vw, 2.2rem);
+        --body-size: clamp(0.72rem, 1.1vw, 0.95rem);
+    }
+    .nav-dots, .keyboard-hint { display: none; }
+}
+
+@media (max-height: 500px) {
+    :root {
+        --slide-padding: clamp(0.5rem, 2vw, 1.2rem);
+        --title-size: clamp(1.1rem, 3.8vw, 1.8rem);
+        --h2-size: clamp(1rem, 2.8vw, 1.4rem);
+        --body-size: clamp(0.68rem, 1vw, 0.85rem);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.2s !important;
+    }
+    html { scroll-behavior: auto; }
+    .reveal { opacity: 1; transform: none; transition: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+<div class="nav-dots" id="navDots"></div>
+<div class="keyboard-hint">Use arrow keys or scroll to navigate</div>
+
+<!-- SLIDE 1: Title -->
+<section class="slide slide-dark" id="slide-1">
+    <div class="slide-content" style="text-align: center; justify-content: center; align-items: center;">
+        <div class="reveal">
+            <span class="tag">DeepLearning.AI Course Summary</span>
+            <h1 style="max-width: 14ch; margin: 0 auto var(--element-gap);">Agentic AI</h1>
+            <p class="gray-text" style="font-size: clamp(1rem, 2.2vw, 1.5rem); max-width: 30ch; margin: 0 auto;">Building Applications with Agentic Workflows</p>
+            <div class="divider" style="margin: var(--content-gap) auto;"></div>
+            <p class="gray-text">Andrew Ng · ~4.5 hours · 5 Modules</p>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 2: Course Overview -->
+<section class="slide slide-white" id="slide-2">
+    <div class="slide-content">
+        <div class="two-col">
+            <div class="reveal">
+                <span class="tag" style="color: var(--cobalt); border-color: var(--cobalt);">Course Overview</span>
+                <h2>What This Course Covers</h2>
+                <div class="divider"></div>
+                <p>A disciplined approach to building, evaluating, and iterating on agentic AI applications — one of the most valuable skills in AI today.</p>
+            </div>
+            <div class="reveal reveal-delay-1">
+                <div class="card" style="margin-bottom: var(--element-gap);">
+                    <div class="label">Instructor</div>
+                    <h3 style="margin: 0;">Andrew Ng</h3>
+                </div>
+                <div class="card" style="margin-bottom: var(--element-gap);">
+                    <div class="label">Platform</div>
+                    <h3 style="margin: 0;">DeepLearning.AI</h3>
+                </div>
+                <div class="card">
+                    <div class="label">Duration</div>
+                    <h3 style="margin: 0;">~4.5 Hours · 5 Modules</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 3: What is Agentic AI -->
+<section class="slide slide-dark" id="slide-3">
+    <div class="slide-content">
+        <div class="two-col">
+            <div class="reveal">
+                <span class="tag">Module 1</span>
+                <h2>What Is Agentic AI?</h2>
+                <div class="divider"></div>
+                <p><strong>One-shot prompting</strong> is like asking someone to write an essay from first word to last without ever using backspace.</p>
+                <p>Humans don't write their best work that way — and neither do LLMs.</p>
+            </div>
+            <div class="reveal reveal-delay-1">
+                <div class="card" style="border-color: var(--cobalt-light);">
+                    <h3 style="color: var(--cobalt-light); margin-top: 0;">Agentic Workflow</h3>
+                    <ol class="compact-list">
+                        <li>Write an essay outline</li>
+                        <li>Conduct web research</li>
+                        <li>Write the first draft</li>
+                        <li>Read and critique the draft</li>
+                        <li>Revise based on the critique</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 4: Core Definition -->
+<section class="slide slide-white" id="slide-4">
+    <div class="slide-content" style="text-align: center; justify-content: center; align-items: center;">
+        <div class="reveal" style="max-width: 50ch;">
+            <div class="quote" style="border-left-color: var(--cobalt); text-align: left;">
+                "An agentic AI workflow is a process where an LLM-based app executes multiple steps to complete a task."
+            </div>
+            <p class="gray-text" style="margin-top: var(--content-gap);"><strong>Core skill:</strong> Decomposing complex tasks into smaller steps executed by an LLM, code, or a function call.</p>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 5: Degrees of Autonomy -->
+<section class="slide slide-dark" id="slide-5">
+    <div class="slide-content">
+        <div class="reveal">
+            <span class="tag">Spectrum</span>
+            <h2>Degrees of Autonomy</h2>
+            <p class="gray-text">Why "agentic"? To move past the binary debate of "true agent or not."</p>
+        </div>
+        <div class="three-col" style="margin-top: var(--content-gap);">
+            <div class="reveal reveal-delay-1 card compact-card">
+                <div class="label" style="color: var(--gray-400);">Less Autonomous</div>
+                <h3>Deterministic</h3>
+                <p class="compact-list">Hard-coded sequence by programmer. LLM only generates text. E.g., generate search terms → web search → write essay.</p>
+            </div>
+            <div class="reveal reveal-delay-2 card compact-card">
+                <div class="label" style="color: var(--cobalt-light);">Semi-Autonomous</div>
+                <h3>Tool Selection</h3>
+                <p class="compact-list">LLM decides which tools to call, but the tool set is predefined.</p>
+            </div>
+            <div class="reveal reveal-delay-3 card compact-card">
+                <div class="label" style="color: var(--gray-400);">Highly Autonomous</div>
+                <h3>Self-Directed</h3>
+                <p class="compact-list">LLM decides the sequence of steps, may write new functions or create tools.</p>
+            </div>
+        </div>
+        <p class="reveal reveal-delay-4 gray-text" style="margin-top: var(--content-gap); font-size: var(--small-size);">Most valuable applications today sit on the less-to-semi-autonomous end.</p>
+    </div>
+</section>
+
+<!-- SLIDE 6: Three Key Benefits -->
+<section class="slide slide-white" id="slide-6">
+    <div class="slide-content">
+        <div class="reveal" style="text-align: center;">
+            <span class="tag" style="color: var(--cobalt); border-color: var(--cobalt);">Benefits</span>
+            <h2>Why Agentic AI?</h2>
+        </div>
+        <div class="three-col" style="margin-top: var(--content-gap);">
+            <div class="reveal reveal-delay-1" style="text-align: center;">
+                <div class="stat-number">1</div>
+                <h3>Performance</h3>
+                <p class="compact-list">The improvement from one model generation to the next is dwarfed by wrapping the older model in an agentic workflow.</p>
+            </div>
+            <div class="reveal reveal-delay-2" style="text-align: center;">
+                <div class="stat-number">2</div>
+                <h3>Parallelism</h3>
+                <p class="compact-list">Generate search terms in parallel, fetch nine web pages simultaneously, then synthesize — much faster than a human.</p>
+            </div>
+            <div class="reveal reveal-delay-3" style="text-align: center;">
+                <div class="stat-number">3</div>
+                <h3>Modularity</h3>
+                <p class="compact-list">Swap search engines, LLMs, or tools independently — without rebuilding the whole system.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 7: Performance Data -->
+<section class="slide slide-dark" id="slide-7">
+    <div class="slide-content">
+        <div class="two-col">
+            <div class="reveal">
+                <span class="tag">HumanEval Benchmark</span>
+                <h2>The Agentic Advantage</h2>
+                <div class="divider"></div>
+                <p>Upgrading from GPT-3.5 to GPT-4 improves results. But implementing an agentic workflow on GPT-3.5 can beat GPT-4 one-shot.</p>
+            </div>
+            <div class="reveal reveal-delay-1">
+                <div class="card" style="margin-bottom: var(--element-gap);">
+                    <div class="stat-number" style="font-size: clamp(2rem, 4.5vw, 3.5rem);">40%</div>
+                    <div class="stat-label">GPT-3.5 One-Shot</div>
+                </div>
+                <div class="card" style="margin-bottom: var(--element-gap);">
+                    <div class="stat-number" style="font-size: clamp(2rem, 4.5vw, 3.5rem);">67%</div>
+                    <div class="stat-label">GPT-4 One-Shot</div>
+                </div>
+                <div class="card" style="border-color: var(--cobalt-light);">
+                    <div class="stat-number" style="font-size: clamp(2rem, 4.5vw, 3.5rem); color: var(--cobalt-light);">→ Higher</div>
+                    <div class="stat-label">GPT-3.5 with Agentic Workflow</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 8: Applications -->
+<section class="slide slide-white" id="slide-8">
+    <div class="slide-content">
+        <div class="reveal">
+            <span class="tag" style="color: var(--cobalt); border-color: var(--cobalt);">Applications</span>
+            <h2>Real-World Use Cases</h2>
+            <p class="gray-text">Examples of increasing difficulty from structured to open-ended.</p>
+        </div>
+        <div class="grid-4" style="margin-top: var(--content-gap);">
+            <div class="reveal reveal-delay-1 card compact-card">
+                <div class="label">Simplest</div>
+                <h3>Invoice Processing</h3>
+                <p class="compact-list">PDF → text → LLM verifies → extract fields → API to database.</p>
+            </div>
+            <div class="reveal reveal-delay-2 card compact-card">
+                <div class="label">Structured</div>
+                <h3>Order Inquiry</h3>
+                <p class="compact-list">Extract details from email → look up database → draft response for human review.</p>
+            </div>
+            <div class="reveal reveal-delay-3 card compact-card">
+                <div class="label">Open-Ended</div>
+                <h3>Customer Service</h3>
+                <p class="compact-list">Agent must plan: check inventory → check policy → issue return slip.</p>
+            </div>
+            <div class="reveal reveal-delay-4 card compact-card">
+                <div class="label">Most Difficult</div>
+                <h3>Computer Use</h3>
+                <p class="compact-list">Agent navigates a web browser independently — clicking, filling, checking.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 9: Task Decomposition -->
+<section class="slide slide-dark" id="slide-9">
+    <div class="slide-content">
+        <div class="reveal">
+            <span class="tag">Framework</span>
+            <h2>Task Decomposition</h2>
+            <p>Always ask: <em>"Can each step be done by an LLM, a short piece of code, a function call, or a tool?"</em></p>
+        </div>
+        <div class="three-col" style="margin-top: var(--content-gap);">
+            <div class="reveal reveal-delay-1 card compact-card">
+                <h3>1. Direct Generation</h3>
+                <p class="compact-list">One step. Good enough for simple tasks.</p>
+            </div>
+            <div class="reveal reveal-delay-2 card compact-card">
+                <h3>2. Decompose into 2-3 Steps</h3>
+                <p class="compact-list">Outline → search → write. Fixes quality issues.</p>
+            </div>
+            <div class="reveal reveal-delay-3 card compact-card">
+                <h3>3. Further Decompose</h3>
+                <p class="compact-list">First draft → reflect → revise. Fixes disjointed output.</p>
+            </div>
+        </div>
+        <div class="reveal reveal-delay-4" style="margin-top: var(--content-gap);">
+            <div class="card">
+                <strong>Examples:</strong> Essay (outline → search → write) · Customer email (extract → query → draft) · Invoice (PDF code → LLM extract → API)
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 10: Four Design Patterns -->
+<section class="slide slide-white" id="slide-10">
+    <div class="slide-content">
+        <div class="reveal" style="text-align: center;">
+            <span class="tag" style="color: var(--cobalt); border-color: var(--cobalt);">Design Patterns</span>
+            <h2>Four Key Patterns</h2>
+            <p class="gray-text">The building blocks of agentic workflows.</p>
+        </div>
+        <div class="grid-4" style="margin-top: var(--content-gap);">
+            <div class="reveal reveal-delay-1 card compact-card">
+                <div class="stat-number" style="font-size: clamp(1.8rem, 3.5vw, 2.5rem);">01</div>
+                <h3>Reflection</h3>
+                <p class="compact-list">Ask the LLM to examine its own output and iteratively improve.</p>
+            </div>
+            <div class="reveal reveal-delay-2 card compact-card">
+                <div class="stat-number" style="font-size: clamp(1.8rem, 3.5vw, 2.5rem);">02</div>
+                <h3>Tool Use</h3>
+                <p class="compact-list">LLMs request function calls — web search, code execution, APIs.</p>
+            </div>
+            <div class="reveal reveal-delay-3 card compact-card">
+                <div class="stat-number" style="font-size: clamp(1.8rem, 3.5vw, 2.5rem);">03</div>
+                <h3>Planning</h3>
+                <p class="compact-list">The LLM decides the sequence of API calls needed for a task.</p>
+            </div>
+            <div class="reveal reveal-delay-4 card compact-card">
+                <div class="stat-number" style="font-size: clamp(1.8rem, 3.5vw, 2.5rem);">04</div>
+                <h3>Multi-Agent</h3>
+                <p class="compact-list">Multiple LLMs with different personas collaborate.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 11: Module 2 Divider -->
+<section class="slide slide-dark" id="slide-11">
+    <div class="slide-content" style="justify-content: center;">
+        <div class="accent-bar"></div>
+        <div class="reveal" style="padding-left: 2rem;">
+            <span class="tag">Module 2</span>
+            <h1>Reflection</h1>
+            <h2 style="font-weight: 400; color: var(--gray-400);">The simplest performance boost</h2>
+            <div class="divider"></div>
+            <p>Generate → Critique → Improve</p>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 12: Reflection Pattern -->
+<section class="slide slide-white" id="slide-12">
+    <div class="slide-content">
+        <div class="two-col">
+            <div class="reveal">
+                <span class="tag" style="color: var(--cobalt); border-color: var(--cobalt);">Reflection</span>
+                <h2>The Reflection Pattern</h2>
+                <div class="divider"></div>
+                <p>Just as humans reflect on their drafts, LLMs can do the same.</p>
+                <ol class="compact-list">
+                    <li>Generate v1 output</li>
+                    <li>Feed v1 back with a reflection prompt</li>
+                    <li>Generate improved v2</li>
+                </ol>
+            </div>
+            <div class="reveal reveal-delay-1">
+                <div class="card" style="margin-bottom: var(--element-gap);">
+                    <div class="label">Email Writing</div>
+                    <p class="compact-list">v1 draft → "Check tone, verify facts, check dates" → v2 improved</p>
+                </div>
+                <div class="card">
+                    <div class="label">Code Generation</div>
+                    <p class="compact-list">v1 code with bugs → reflect with reasoning model → v2 fixed code</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 13: Why Not Direct? -->
+<section class="slide slide-dark" id="slide-13">
+    <div class="slide-content">
+        <div class="reveal">
+            <span class="tag">Evidence</span>
+            <h2>Why Not Just Direct Generation?</h2>
+            <p>Research from Madaan et al. shows reflection consistently outperforms zero-shot prompting across many tasks and models.</p>
+        </div>
+        <div class="three-col" style="margin-top: var(--content-gap);">
+            <div class="reveal reveal-delay-1 card compact-card">
+                <h3>Validate Outputs</h3>
+                <p class="compact-list">Structured HTML/JSON outputs checked for correctness.</p>
+            </div>
+            <div class="reveal reveal-delay-2 card compact-card">
+                <h3>Check Completeness</h3>
+                <p class="compact-list">"How to brew the perfect cup of tea" — did we miss steps?</p>
+            </div>
+            <div class="reveal reveal-delay-3 card compact-card">
+                <h3>Review Branding</h3>
+                <p class="compact-list">Domain names checked for unintended meanings or pronunciation issues.</p>
+            </div>
+        </div>
+        <div class="reveal reveal-delay-4" style="margin-top: var(--content-gap);">
+            <div class="quote">"The reflection design pattern isn't magic, but it can often give a modest bump in performance."</div>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 14: External Feedback -->
+<section class="slide slide-white" id="slide-14">
+    <div class="slide-content">
+        <div class="reveal">
+            <span class="tag" style="color: var(--cobalt); border-color: var(--cobalt);">Power Multiplier</span>
+            <h2>External Feedback</h2>
+            <p class="gray-text">Pure prompt engineering plateaus. External feedback breaks through the ceiling.</p>
+        </div>
+        <div class="grid-4" style="margin-top: var(--content-gap);">
+            <div class="reveal reveal-delay-1 card compact-card">
+                <h3>Code Execution</h3>
+                <p class="compact-list">Run code → feed error messages → LLM fixes bugs.</p>
+            </div>
+            <div class="reveal reveal-delay-2 card compact-card">
+                <h3>Competitor Detection</h3>
+                <p class="compact-list">Regex match on output → feed back as criticism if competitor mentioned.</p>
+            </div>
+            <div class="reveal reveal-delay-3 card compact-card">
+                <h3>Fact-Checking</h3>
+                <p class="compact-list">Web search to verify claims → feed snippets back to LLM.</p>
+            </div>
+            <div class="reveal reveal-delay-4 card compact-card">
+                <h3>Word Count</h3>
+                <p class="compact-list">Count words → if over limit, feed count back → LLM tightens text.</p>
+            </div>
+        </div>
+        <div class="reveal reveal-delay-4" style="margin-top: var(--content-gap);">
+            <div class="quote" style="border-left-color: var(--cobalt);">"Reflection with external feedback is much more powerful than reflection using the LLM as the only source."</div>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 15: Evaluating Reflection -->
+<section class="slide slide-dark" id="slide-15">
+    <div class="slide-content">
+        <div class="two-col">
+            <div class="reveal">
+                <span class="tag">Evaluation</span>
+                <h2>Quantify the Impact</h2>
+                <div class="divider"></div>
+                <p>Don't assume reflection helps — measure it.</p>
+                <ol class="compact-list">
+                    <li>Collect 10-15 questions with ground-truth answers</li>
+                    <li>Run workflow <em>without</em> reflection</li>
+                    <li>Run with reflection</li>
+                    <li>Compare accuracy</li>
+                </ol>
+            </div>
+            <div class="reveal reveal-delay-1">
+                <div class="card" style="text-align: center; margin-bottom: var(--element-gap);">
+                    <div class="stat-number">87%</div>
+                    <div class="stat-label">Without Reflection</div>
+                </div>
+                <div class="card" style="text-align: center; border-color: var(--cobalt-light);">
+                    <div class="stat-number" style="color: var(--cobalt-light);">95%</div>
+                    <div class="stat-label">With Reflection</div>
+                </div>
+                <p class="gray-text" style="text-align: center; margin-top: var(--element-gap); font-size: var(--small-size);">SQL query generation example</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 16: Module 3 Divider -->
+<section class="slide slide-white" id="slide-16">
+    <div class="slide-content" style="justify-content: center;">
+        <div class="accent-bar" style="background: var(--cobalt);"></div>
+        <div class="reveal" style="padding-left: 2rem;">
+            <span class="tag" style="color: var(--cobalt); border-color: var(--cobalt);">Module 3</span>
+            <h1>Tool Use</h1>
+            <h2 style="font-weight: 400; color: var(--gray-600);">Giving LLMs capabilities beyond text</h2>
+            <div class="divider"></div>
+            <p>The LLM decides <em>when</em> to call a tool.</p>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 17: What Are Tools -->
+<section class="slide slide-dark" id="slide-17">
+    <div class="slide-content">
+        <div class="reveal">
+            <span class="tag">Mechanism</span>
+            <h2>What Are Tools?</h2>
+            <p>Tools are functions an LLM can request to call. The LLM autonomously decides whether to use them.</p>
+        </div>
+        <div class="three-col" style="margin-top: var(--content-gap);">
+            <div class="reveal reveal-delay-1 card compact-card">
+                <div class="label">1. Description</div>
+                <p class="compact-list">Tool descriptions (name, description, parameters) are provided in the prompt.</p>
+            </div>
+            <div class="reveal reveal-delay-2 card compact-card">
+                <div class="label">2. Decision</div>
+                <p class="compact-list">The LLM decides whether to use a tool based on the query.</p>
+            </div>
+            <div class="reveal reveal-delay-3 card compact-card">
+                <div class="label">3. Execution</div>
+                <p class="compact-list">If the LLM requests a tool call, your code executes it and returns the result.</p>
+            </div>
+        </div>
+        <div class="reveal reveal-delay-4" style="margin-top: var(--content-gap);">
+            <div class="card">
+                <strong>Examples:</strong> Web search for restaurant recommendations · Database query for retail · Calculation for interest rates · Code execution for general math
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 18: Modern Tool Syntax -->
+<section class="slide slide-white" id="slide-18">
+    <div class="slide-content">
+        <div class="two-col">
+            <div class="reveal">
+                <span class="tag" style="color: var(--cobalt); border-color: var(--cobalt);">Modern Syntax</span>
+                <h2>AISuite & JSON Schema</h2>
+                <div class="divider"></div>
+                <p>The modern approach uses libraries like <strong>AISuite</strong> to automatically generate JSON schemas from function docstrings and type annotations.</p>
+                <ul class="compact-list">
+                    <li>Schema includes name, description, parameters</li>
+                    <li>Passed to LLM so it knows when and how to call</li>
+                    <li>Library handles the function-calling loop</li>
+                    <li><code>max_turns=5</code> prevents infinite loops</li>
+                </ul>
+            </div>
+            <div class="reveal reveal-delay-1">
+                <div class="card" style="font-family: monospace; font-size: var(--small-size); line-height: 1.5;">
+                    <div style="color: var(--gray-600); margin-bottom: 0.5em;"># Python example</div>
+                    <div><span style="color: var(--cobalt);">response</span> = client.chat.completions.create(</div>
+                    <div style="padding-left: 1.5em;">model=<span style="color: var(--gray-600);">"gpt-4o"</span>,</div>
+                    <div style="padding-left: 1.5em;">messages=messages,</div>
+                    <div style="padding-left: 1.5em;">tools=[getCurrentTime],</div>
+                    <div style="padding-left: 1.5em;">max_turns=<span style="color: var(--cobalt);">5</span></div>
+                    <div>)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 19: Code Execution -->
+<section class="slide slide-dark" id="slide-19">
+    <div class="slide-content">
+        <div class="two-col">
+            <div class="reveal">
+                <span class="tag">Power Tool</span>
+                <h2>Code Execution</h2>
+                <div class="divider"></div>
+                <p>Instead of creating a separate tool for every operation, let the LLM <strong>write and execute Python code</strong>.</p>
+                <ol class="compact-list">
+                    <li>Prompt LLM to write code delimited with tags</li>
+                    <li>Extract code with regex</li>
+                    <li>Execute in a <strong>sandbox</strong> (Docker, E2B)</li>
+                    <li>Return output to LLM</li>
+                    <li>If execution fails, feed error back for debugging</li>
+                </ol>
+            </div>
+            <div class="reveal reveal-delay-1">
+                <div class="card" style="border-color: var(--cobalt-light);">
+                    <div class="label" style="color: var(--cobalt-light);">Security Best Practice</div>
+                    <p><strong>Always run LLM-generated code in a sandbox.</strong></p>
+                    <p class="compact-list" style="margin-top: 0.5em;">Real incident: an agentic coder deleted Python files from a project directory.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 20: MCP -->
+<section class="slide slide-white" id="slide-20">
+    <div class="slide-content">
+        <div class="reveal">
+            <span class="tag" style="color: var(--cobalt); border-color: var(--cobalt);">Standard</span>
+            <h2>MCP: Model Context Protocol</h2>
+            <p class="gray-text">An Anthropic-proposed standard now widely adopted. Solves the N×M integration problem.</p>
+        </div>
+        <div class="two-col" style="margin-top: var(--content-gap);">
+            <div class="reveal reveal-delay-1 card compact-card">
+                <div class="label" style="color: var(--gray-600);">Without MCP</div>
+                <p class="compact-list">M applications × N tools = <strong>M×N custom wrappers</strong></p>
+            </div>
+            <div class="reveal reveal-delay-2 card compact-card" style="border-color: var(--cobalt);">
+                <div class="label" style="color: var(--cobalt);">With MCP</div>
+                <p class="compact-list">M clients + N servers = <strong>M+N total work</strong></p>
+            </div>
+        </div>
+        <div class="reveal reveal-delay-3" style="margin-top: var(--content-gap);">
+            <div class="card">
+                <strong>Architecture:</strong> MCP Clients (apps) connect to MCP Servers (wrappers for Slack, GitHub, Google Drive, Postgres, etc.). Covers both data access (resources) and function calling (tools).
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 21: Module 4 Divider -->
+<section class="slide slide-dark" id="slide-21">
+    <div class="slide-content" style="justify-content: center;">
+        <div class="accent-bar"></div>
+        <div class="reveal" style="padding-left: 2rem;">
+            <span class="tag">Module 4</span>
+            <h1>Practical Tips</h1>
+            <h2 style="font-weight: 400; color: var(--gray-400);">Evaluations, Error Analysis & Optimization</h2>
+            <div class="divider"></div>
+            <p><em>The most important module.</em></p>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 22: Eval-Driven Development -->
+<section class="slide slide-white" id="slide-22">
+    <div class="slide-content">
+        <div class="reveal">
+            <span class="tag" style="color: var(--cobalt); border-color: var(--cobalt);">Core Method</span>
+            <h2>Eval-Driven Development</h2>
+            <p class="gray-text">Build a quick, safe prototype. Then use evals to drive improvements.</p>
+        </div>
+        <div class="three-col" style="margin-top: var(--content-gap);">
+            <div class="reveal reveal-delay-1 card compact-card">
+                <div class="stat-number" style="font-size: clamp(1.6rem, 3vw, 2.2rem);">01</div>
+                <h3>Build Quick System</h3>
+                <p class="compact-list">Extract four fields from invoices. Don't over-engineer.</p>
+            </div>
+            <div class="reveal reveal-delay-2 card compact-card">
+                <div class="stat-number" style="font-size: clamp(1.6rem, 3vw, 2.2rem);">02</div>
+                <h3>Examine Outputs</h3>
+                <p class="compact-list">Manually review 10-20 examples. Discover due dates are frequently wrong.</p>
+            </div>
+            <div class="reveal reveal-delay-3 card compact-card">
+                <div class="stat-number" style="font-size: clamp(1.6rem, 3vw, 2.2rem);">03</div>
+                <h3>Create & Iterate</h3>
+                <p class="compact-list">Annotate ground truth. Write eval code. Iterate prompts. Track accuracy.</p>
+            </div>
+        </div>
+        <div class="reveal reveal-delay-4" style="margin-top: var(--content-gap);">
+            <div class="quote" style="border-left-color: var(--cobalt);">"It's difficult to know in advance where the system will work. Build a quick system, look at it, and use that to prioritize."</div>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 23: Error Analysis -->
+<section class="slide slide-dark" id="slide-23">
+    <div class="slide-content">
+        <div class="reveal">
+            <span class="tag">Trace Analysis</span>
+            <h2>Error Analysis & Prioritization</h2>
+            <p>Agentic workflows have many components. Guessing which to improve is inefficient.</p>
+        </div>
+        <div class="two-col" style="margin-top: var(--content-gap);">
+            <div class="reveal reveal-delay-1">
+                <h3>The Process</h3>
+                <ol class="compact-list">
+                    <li>Find the problem (e.g., "missing key points")</li>
+                    <li>Look at <strong>traces</strong> — intermediate outputs after each step</li>
+                    <li>Identify failing component</li>
+                    <li>Have a human expert evaluate each component</li>
+                    <li>Count subpar outputs per component</li>
+                    <li>Focus on the highest error count</li>
+                </ol>
+            </div>
+            <div class="reveal reveal-delay-2">
+                <div class="card" style="margin-bottom: var(--element-gap);">
+                    <div class="label">Real Example</div>
+                    <p class="compact-list">Research agent "missed key points." Traces revealed the <strong>web search engine</strong> returned too many blog articles instead of scientific sources.</p>
+                </div>
+                <div class="card">
+                    <div class="label">Invoice Example</div>
+                    <p class="compact-list">75% of errors came from <strong>SQL query generation</strong> — not PDF conversion or email drafting.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 24: Component-Level Evals -->
+<section class="slide slide-white" id="slide-24">
+    <div class="slide-content">
+        <div class="two-col">
+            <div class="reveal">
+                <span class="tag" style="color: var(--cobalt); border-color: var(--cobalt);">Iteration Speed</span>
+                <h2>Component-Level Evaluations</h2>
+                <div class="divider"></div>
+                <p>End-to-end evals are expensive and noisy. Component-level evals let you iterate <strong>10× faster</strong>.</p>
+                <ul class="compact-list">
+                    <li>Create gold-standard authoritative URLs</li>
+                    <li>Measure overlap (F1 score)</li>
+                    <li>Test search engines, result counts, date ranges</li>
+                    <li>Validate with end-to-end eval once optimized</li>
+                </ul>
+            </div>
+            <div class="reveal reveal-delay-1">
+                <div class="card" style="text-align: center; border-color: var(--cobalt);">
+                    <div class="stat-number" style="font-size: clamp(2.5rem, 5vw, 4rem); color: var(--cobalt);">10×</div>
+                    <div class="stat-label" style="color: var(--gray-600);">Faster Iteration</div>
+                    <p class="compact-list" style="margin-top: 0.5em; color: var(--gray-600);">Parallel team workflows: each team optimizes its own metric.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 25: Addressing Problems -->
+<section class="slide slide-dark" id="slide-25">
+    <div class="slide-content">
+        <div class="reveal">
+            <span class="tag">Fixes</span>
+            <h2>How to Address Problems</h2>
+            <p>Categorize fixes by component type.</p>
+        </div>
+        <div class="two-col" style="margin-top: var(--content-gap);">
+            <div class="reveal reveal-delay-1 card compact-card">
+                <div class="label">Non-LLM Components</div>
+                <ul class="compact-list">
+                    <li>Tune hyperparameters (results, thresholds, chunk size)</li>
+                    <li>Replace the component (swap search engines, RAG providers)</li>
+                </ul>
+            </div>
+            <div class="reveal reveal-delay-2 card compact-card">
+                <div class="label">LLM-Based Components</div>
+                <ul class="compact-list">
+                    <li>Improve prompts (instructions, few-shot examples)</li>
+                    <li>Try a different LLM</li>
+                    <li>Decompose into simpler sub-steps</li>
+                    <li><strong>Fine-tune</strong> as last resort (expensive)</li>
+                </ul>
+            </div>
+        </div>
+        <div class="reveal reveal-delay-3" style="margin-top: var(--content-gap);">
+            <div class="quote">"I tend not to fine-tune a model until I've really exhausted the other options."</div>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 26: Latency & Cost -->
+<section class="slide slide-white" id="slide-26">
+    <div class="slide-content">
+        <div class="reveal">
+            <span class="tag" style="color: var(--cobalt); border-color: var(--cobalt);">Optimization</span>
+            <h2>Latency & Cost Optimization</h2>
+            <p class="gray-text">Priority order: output quality → latency → cost</p>
+        </div>
+        <div class="three-col" style="margin-top: var(--content-gap);">
+            <div class="reveal reveal-delay-1 card compact-card">
+                <h3>Benchmark Each Step</h3>
+                <p class="compact-list">Time each component and calculate per-step cost. Identify bottlenecks.</p>
+            </div>
+            <div class="reveal reveal-delay-2 card compact-card">
+                <h3>Leverage Parallelism</h3>
+                <p class="compact-list">Fetch multiple web pages simultaneously. Run independent LLM calls in parallel.</p>
+            </div>
+            <div class="reveal reveal-delay-3 card compact-card">
+                <h3>Cost Analysis</h3>
+                <p class="compact-list">Calculate token costs and API fees per component. Focus on the most expensive ones.</p>
+            </div>
+        </div>
+        <div class="reveal reveal-delay-4" style="margin-top: var(--content-gap);">
+            <div class="quote" style="border-left-color: var(--cobalt);">"Getting output quality high is usually the hardest part. Only then focus on latency and cost."</div>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 27: Development Process Summary -->
+<section class="slide slide-dark" id="slide-27">
+    <div class="slide-content">
+        <div class="reveal" style="text-align: center;">
+            <span class="tag">Process</span>
+            <h2>The Build-Analyze Loop</h2>
+            <p class="gray-text">The process is nonlinear — teams bounce between techniques.</p>
+        </div>
+        <div class="three-col" style="margin-top: var(--content-gap);">
+            <div class="reveal reveal-delay-1 card compact-card" style="text-align: center;">
+                <div class="stat-number" style="font-size: clamp(1.8rem, 3.5vw, 2.5rem);">1</div>
+                <h3>Build</h3>
+                <p class="compact-list">Quick end-to-end system</p>
+            </div>
+            <div class="reveal reveal-delay-2 card compact-card" style="text-align: center;">
+                <div class="stat-number" style="font-size: clamp(1.8rem, 3.5vw, 2.5rem);">2</div>
+                <h3>Analyze</h3>
+                <p class="compact-list">Manually examine outputs and traces</p>
+            </div>
+            <div class="reveal reveal-delay-3 card compact-card" style="text-align: center;">
+                <div class="stat-number" style="font-size: clamp(1.8rem, 3.5vw, 2.5rem);">3</div>
+                <h3>Evaluate</h3>
+                <p class="compact-list">Small evals (10-20 examples)</p>
+            </div>
+        </div>
+        <div class="three-col" style="margin-top: var(--content-gap);">
+            <div class="reveal reveal-delay-1 card compact-card" style="text-align: center;">
+                <div class="stat-number" style="font-size: clamp(1.8rem, 3.5vw, 2.5rem);">4</div>
+                <h3>Count Errors</h3>
+                <p class="compact-list">Error analysis by component</p>
+            </div>
+            <div class="reveal reveal-delay-2 card compact-card" style="text-align: center;">
+                <div class="stat-number" style="font-size: clamp(1.8rem, 3.5vw, 2.5rem);">5</div>
+                <h3>Component Evals</h3>
+                <p class="compact-list">Focused optimization</p>
+            </div>
+            <div class="reveal reveal-delay-3 card compact-card" style="text-align: center;">
+                <div class="stat-number" style="font-size: clamp(1.8rem, 3.5vw, 2.5rem);">↻</div>
+                <h3>Iterate</h3>
+                <p class="compact-list">Build → Analyze → Improve → Repeat</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 28: Module 5 Divider -->
+<section class="slide slide-white" id="slide-28">
+    <div class="slide-content" style="justify-content: center;">
+        <div class="accent-bar" style="background: var(--cobalt);"></div>
+        <div class="reveal" style="padding-left: 2rem;">
+            <span class="tag" style="color: var(--cobalt); border-color: var(--cobalt);">Module 5</span>
+            <h1>Highly Autonomous Agents</h1>
+            <h2 style="font-weight: 400; color: var(--gray-600);">Planning, Code Execution & Multi-Agent</h2>
+            <div class="divider"></div>
+            <p>Moving beyond hard-coded sequences.</p>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 29: Planning Workflows -->
+<section class="slide slide-dark" id="slide-29">
+    <div class="slide-content">
+        <div class="two-col">
+            <div class="reveal">
+                <span class="tag">Planning</span>
+                <h2>Planning Workflows</h2>
+                <div class="divider"></div>
+                <p>The LLM generates a step-by-step plan to answer complex queries.</p>
+                <ul class="compact-list">
+                    <li>The sequence isn't hard-coded</li>
+                    <li>For different queries, the LLM generates completely different plans</li>
+                    <li>Use structured formats (JSON or XML) for reliable parsing</li>
+                </ul>
+            </div>
+            <div class="reveal reveal-delay-1">
+                <div class="card" style="font-family: monospace; font-size: var(--small-size); line-height: 1.5;">
+                    <div style="color: var(--gray-400); margin-bottom: 0.5em;">// JSON Plan Example</div>
+                    <div>[</div>
+                    <div style="padding-left: 1.2em;">{</div>
+                    <div style="padding-left: 2em;">"step": 1,</div>
+                    <div style="padding-left: 2em;">"tool": "getItemDescriptions",</div>
+                    <div style="padding-left: 2em;">"arguments": { "shape": "round" }</div>
+                    <div style="padding-left: 1.2em;">},</div>
+                    <div style="padding-left: 1.2em;">{ "step": 2, ... },</div>
+                    <div>]</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 30: Code as Action -->
+<section class="slide slide-white" id="slide-30">
+    <div class="slide-content">
+        <div class="reveal">
+            <span class="tag" style="color: var(--cobalt); border-color: var(--cobalt);">Code as Action</span>
+            <h2>Code Is the Ultimate Plan</h2>
+            <p class="gray-text">Creating narrow tools for every query is brittle. Let the LLM write code.</p>
+        </div>
+        <div class="two-col" style="margin-top: var(--content-gap);">
+            <div class="reveal reveal-delay-1 card compact-card">
+                <div class="label" style="color: var(--gray-600);">Narrow Tools (Brittle)</div>
+                <p class="compact-list">getColumnMax, filterRows, getColumnMean, sumRows... doesn't cover all queries.</p>
+            </div>
+            <div class="reveal reveal-delay-2 card compact-card" style="border-color: var(--cobalt);">
+                <div class="label" style="color: var(--cobalt);">Code as Action (Flexible)</div>
+                <p class="compact-list">LLM writes Python with pandas. Access to hundreds of library functions it already knows.</p>
+            </div>
+        </div>
+        <div class="reveal reveal-delay-3" style="margin-top: var(--content-gap);">
+            <div class="quote" style="border-left-color: var(--cobalt);">Research (Wang et al.) confirms code-as-action outperforms tool-only approaches across multiple models.</div>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 31: Multi-Agent Workflows -->
+<section class="slide slide-dark" id="slide-31">
+    <div class="slide-content">
+        <div class="reveal">
+            <span class="tag">Multi-Agent</span>
+            <h2>Multi-Agent Workflows</h2>
+            <p>Like hiring a team rather than a single person.</p>
+        </div>
+        <div class="three-col" style="margin-top: var(--content-gap);">
+            <div class="reveal reveal-delay-1 card compact-card">
+                <div class="label">Researcher</div>
+                <h3>Market Analyst</h3>
+                <p class="compact-list">Analyzes trends, researches competitors. Tool: web search.</p>
+            </div>
+            <div class="reveal reveal-delay-2 card compact-card">
+                <div class="label">Designer</div>
+                <h3>Graphic Designer</h3>
+                <p class="compact-list">Creates visualizations, generates images. Tools: image APIs, code.</p>
+            </div>
+            <div class="reveal reveal-delay-3 card compact-card">
+                <div class="label">Writer</div>
+                <h3>Copywriter</h3>
+                <p class="compact-list">Transforms research into text and marketing copy. No special tools.</p>
+            </div>
+        </div>
+        <div class="reveal reveal-delay-4" style="margin-top: var(--content-gap);">
+            <div class="card">
+                <strong>Workflows:</strong> Linear (Researcher → Designer → Writer) · Hierarchical (Manager coordinates specialists) · All-to-All (experimental collaboration)
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 32: Communication Patterns -->
+<section class="slide slide-white" id="slide-32">
+    <div class="slide-content">
+        <div class="reveal">
+            <span class="tag" style="color: var(--cobalt); border-color: var(--cobalt);">Patterns</span>
+            <h2>Communication Patterns</h2>
+            <p class="gray-text">Three patterns for multi-agent systems.</p>
+        </div>
+        <div class="three-col" style="margin-top: var(--content-gap);">
+            <div class="reveal reveal-delay-1 card compact-card">
+                <div class="stat-number" style="font-size: clamp(1.6rem, 3vw, 2.2rem); color: var(--cobalt);">01</div>
+                <h3>Linear</h3>
+                <p class="compact-list">A → B → C. Most common. Each agent passes output to the next.</p>
+            </div>
+            <div class="reveal reveal-delay-2 card compact-card">
+                <div class="stat-number" style="font-size: clamp(1.6rem, 3vw, 2.2rem); color: var(--cobalt);">02</div>
+                <h3>Hierarchical</h3>
+                <p class="compact-list">Manager coordinates specialists. Can extend to deeper hierarchies.</p>
+            </div>
+            <div class="reveal reveal-delay-3 card compact-card">
+                <div class="stat-number" style="font-size: clamp(1.6rem, 3vw, 2.2rem); color: var(--cobalt);">03</div>
+                <h3>All-to-All</h3>
+                <p class="compact-list">Experimental. Any agent can talk to any other. Unpredictable but creative.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 33: Key Insights -->
+<section class="slide slide-dark" id="slide-33">
+    <div class="slide-content">
+        <div class="reveal" style="text-align: center;">
+            <span class="tag">Summary</span>
+            <h2>Six Key Insights</h2>
+        </div>
+        <div class="grid-4" style="margin-top: var(--content-gap);">
+            <div class="reveal reveal-delay-1 card compact-card">
+                <div class="stat-number" style="font-size: clamp(1.5rem, 2.8vw, 2rem);">1</div>
+                <h3>Agentic Beats One-Shot</h3>
+                <p class="compact-list">Iterative workflows outperform single-prompt generation — often more than model upgrades.</p>
+            </div>
+            <div class="reveal reveal-delay-2 card compact-card">
+                <div class="stat-number" style="font-size: clamp(1.5rem, 2.8vw, 2rem);">2</div>
+                <h3>Four Design Patterns</h3>
+                <p class="compact-list">Reflection, Tool Use, Planning, Multi-Agent collaboration are the building blocks.</p>
+            </div>
+            <div class="reveal reveal-delay-3 card compact-card">
+                <div class="stat-number" style="font-size: clamp(1.5rem, 2.8vw, 2rem);">3</div>
+                <h3>Eval-Driven Wins</h3>
+                <p class="compact-list">Build quick, analyze traces, count errors, let data tell you where to focus.</p>
+            </div>
+            <div class="reveal reveal-delay-4 card compact-card">
+                <div class="stat-number" style="font-size: clamp(1.5rem, 2.8vw, 2rem);">4</div>
+                <h3>Code Is Ultimate</h3>
+                <p class="compact-list">LLMs writing and executing code access thousands of library functions.</p>
+            </div>
+        </div>
+        <div class="two-col" style="margin-top: var(--content-gap); max-width: 800px; margin-left: auto; margin-right: auto;">
+            <div class="reveal reveal-delay-1 card compact-card">
+                <div class="stat-number" style="font-size: clamp(1.5rem, 2.8vw, 2rem);">5</div>
+                <h3>External Feedback > Reflection</h3>
+                <p class="compact-list">Prompt engineering plateaus; external feedback breaks through the ceiling.</p>
+            </div>
+            <div class="reveal reveal-delay-2 card compact-card">
+                <div class="stat-number" style="font-size: clamp(1.5rem, 2.8vw, 2rem);">6</div>
+                <h3>Start Simple</h3>
+                <p class="compact-list">Begin with direct generation. Add complexity only when quality metrics demand it.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SLIDE 34: Thank You -->
+<section class="slide slide-white" id="slide-34">
+    <div class="slide-content" style="text-align: center; justify-content: center; align-items: center;">
+        <div class="reveal" style="max-width: 50ch;">
+            <span class="tag" style="color: var(--cobalt); border-color: var(--cobalt);">Course Summary</span>
+            <h1>Thank You</h1>
+            <div class="divider" style="margin: var(--content-gap) auto;"></div>
+            <p class="gray-text">Agentic AI skills are increasingly assessed in job interviews. Use these skills responsibly and build amazing applications.</p>
+            <div class="quote" style="border-left-color: var(--cobalt); text-align: left; margin-top: var(--content-gap);">
+                "With the skills you learn from this course, I think you now know how to build a lot of cool, exciting Agentic AI applications."
+                <div class="author">— Andrew Ng</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+/* ===========================================
+   NAVIGATION & INTERACTIVITY
+   =========================================== */
+(function() {
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    let currentSlide = 0;
+    let isScrolling = false;
+    let scrollTimeout;
+
+    // Progress bar
+    const progressBar = document.getElementById('progressBar');
+    function updateProgress() {
+        const pct = ((currentSlide) / (totalSlides - 1)) * 100;
+        progressBar.style.width = pct + '%';
+    }
+
+    // Nav dots
+    const navDots = document.getElementById('navDots');
+    slides.forEach((_, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'nav-dot' + (i === 0 ? ' active' : '');
+        btn.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+        btn.addEventListener('click', () => goToSlide(i));
+        navDots.appendChild(btn);
+    });
+    const dots = navDots.querySelectorAll('.nav-dot');
+
+    function updateDots() {
+        dots.forEach((d, i) => d.classList.toggle('active', i === currentSlide));
+    }
+
+    function goToSlide(index) {
+        if (index < 0 || index >= totalSlides) return;
+        currentSlide = index;
+        slides[index].scrollIntoView({ behavior: 'smooth', block: 'start' });
+        updateProgress();
+        updateDots();
+    }
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') {
+            e.preventDefault();
+            goToSlide(currentSlide + 1);
+        } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+            e.preventDefault();
+            goToSlide(currentSlide - 1);
+        } else if (e.key === 'Home') {
+            e.preventDefault();
+            goToSlide(0);
+        } else if (e.key === 'End') {
+            e.preventDefault();
+            goToSlide(totalSlides - 1);
+        }
+    });
+
+    // Wheel / scroll handling
+    document.addEventListener('wheel', (e) => {
+        if (isScrolling) return;
+        isScrolling = true;
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => { isScrolling = false; }, 600);
+
+        if (e.deltaY > 30) {
+            e.preventDefault();
+            goToSlide(currentSlide + 1);
+        } else if (e.deltaY < -30) {
+            e.preventDefault();
+            goToSlide(currentSlide - 1);
+        }
+    }, { passive: false });
+
+    // Touch navigation
+    let touchStartY = 0;
+    document.addEventListener('touchstart', (e) => { touchStartY = e.touches[0].clientY; }, { passive: true });
+    document.addEventListener('touchend', (e) => {
+        const deltaY = touchStartY - e.changedTouches[0].clientY;
+        if (Math.abs(deltaY) > 50) {
+            if (deltaY > 0) goToSlide(currentSlide + 1);
+            else goToSlide(currentSlide - 1);
+        }
+    }, { passive: true });
+
+    // Intersection Observer for reveal animations
+    const observerOptions = { threshold: 0.15 };
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
+            }
+        });
+    }, observerOptions);
+
+    slides.forEach(slide => observer.observe(slide));
+
+    // Track current slide on scroll
+    const slideObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const index = Array.from(slides).indexOf(entry.target);
+                currentSlide = index;
+                updateProgress();
+                updateDots();
+                // Toggle nav-dot theme based on slide background
+                if (entry.target.classList.contains('slide-white')) {
+                    navDots.classList.add('on-white');
+                } else {
+                    navDots.classList.remove('on-white');
+                }
+            }
+        });
+    }, { threshold: 0.5 });
+
+    slides.forEach(slide => slideObserver.observe(slide));
+
+    // Initialize
+    updateProgress();
+    updateDots();
+})();
+</script>
+</body>
+</html>
