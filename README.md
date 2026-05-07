@@ -11,35 +11,6 @@ A personal master workspace and knowledge hub — centralizing learning notes, t
 | `AGENTS.md` | Instructions for AI coding agents working in this repo |
 | `Project/` | Project work (gitignored — fast experiment space, not tracked) |
 
-## Structure
-
-### Learning/
-
-```
-Learning/
-├── AI/
-│   ├── AgenticAI/          # Agentic AI concepts (Andrew Ng course, browser agents)
-│   ├── AI-Engineer-channel/ # AI engineering resources
-│   └── Traditional/         # Traditional AI techniques
-├── LLM/
-│   └── TRANSFORMER/        # Transformer architecture deep-dive
-├── Abtract-Algebra/
-│   └── Group/              # Group theory notes
-├── Bussiness/
-│   └── 1000women/          # Business learning
-└── .agents/
-    └── skills/             # Custom agent skill definitions
-```
-
-### Task/
-
-```
-Task/
-├── Inbox/          # Incoming tasks to triage
-├── Active/         # Currently in-progress tasks
-├── Done/           # Completed tasks
-└── Templates/      # Reusable task templates
-```
 
 ## How to Use
 
