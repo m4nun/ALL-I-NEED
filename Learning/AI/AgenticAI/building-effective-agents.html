@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Building Effective Agents with LangGraph</title>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{--ink:#1a1a2e;--ink-light:#4a4a68;--accent:#e94560;--accent2:#4361ee;--ground:#fafafa;--ground-alt:#f0f0f5}
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    body{font-family:'Inter',system-ui,sans-serif;background:var(--ground);color:var(--ink);min-height:100vh;overflow-x:hidden}
+    .visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
+    ::-webkit-scrollbar{width:6px}
+    ::-webkit-scrollbar-track{background:transparent}
+    ::-webkit-scrollbar-thumb{background:#d0d0dd;border-radius:3px}
+    #app{min-height:100vh;display:flex;flex-direction:column}
+    #content{flex:1;padding-top:56px;padding-bottom:80px}
+    .beat-wrap{padding:12px 0}
+    .beat-wrap:first-child{padding-top:24px}
+    .beat-wrap:last-child{padding-bottom:32px}
+    .beat-inner{max-width:780px;margin:0 auto;padding:0 24px;opacity:0;transform:translateY(20px);transition:opacity .5s ease-out,transform .5s ease-out}
+    .beat-inner.visible{opacity:1;transform:translateY(0)}
+    .top-bar{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(250,250,250,.88);backdrop-filter:blur(8px);border-bottom:1px solid #e8e8ee;padding:10px 24px}
+    .top-bar-inner{max-width:780px;margin:0 auto;display:flex;align-items:center;gap:12px}
+    .dot{width:8px;height:8px;border-radius:50%;background:#ddd;transition:all .3s;cursor:pointer}
+    .dot.active{background:var(--accent2);transform:scale(1.25)}
+    .dot.done{background:#9ca3cf}
+    .counter{font-size:12px;color:#999;font-weight:600;margin-left:auto;font-variant-numeric:tabular-nums}
+    .bot-bar{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(250,250,250,.88);backdrop-filter:blur(8px);border-top:1px solid #e8e8ee;padding:12px 24px}
+    .bot-inner{max-width:780px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+    #backBtn{padding:6px 16px;border-radius:8px;border:1px solid #ddd;background:#fff;color:var(--ink-light);font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;opacity:0;pointer-events:none}
+    #backBtn.show{opacity:1;pointer-events:auto}
+    #backBtn:hover{background:var(--ground-alt);border-color:#ccc}
+    .hint{font-size:11px;color:#bbb;font-weight:500}
+    h1{font-size:32px;font-weight:800;color:var(--ink);letter-spacing:-.5px;line-height:1.2}
+    h2{font-size:20px;font-weight:700;color:var(--ink);line-height:1.3}
+    .sub{color:var(--ink-light);font-size:15px;line-height:1.5}
+    .tag{display:inline-block;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:var(--accent2);color:#fff;margin-bottom:8px}
+    svg{display:block;max-width:100%;height:auto}
+    .fig{background:#fff;border-radius:16px;border:1px solid #e8e8ee;padding:24px;overflow:hidden}
+    .fig-sm{padding:16px}
+    @keyframes drawLine{to{stroke-dashoffset:0}}
+    @keyframes fadeIn{to{opacity:1}}
+    @keyframes popIn{to{opacity:1;transform:scale(1)}}
+    @keyframes slideUp{to{opacity:1;transform:translateY(0)}}
+    @keyframes pulse{0%,100%{opacity:.3}50%{opacity:.8}}
+    .a-fade{opacity:0;animation:fadeIn .5s ease-out forwards}
+    .a-pop{opacity:0;transform:scale(.8);animation:popIn .4s ease-out forwards}
+    .a-up{opacity:0;transform:translateY(12px);animation:slideUp .5s ease-out forwards}
+    .a-line path{stroke-dasharray:800;stroke-dashoffset:800;animation:drawLine .8s ease-out forwards}
+    .a-line2 path{stroke-dasharray:400;stroke-dashoffset:400;animation:drawLine .6s ease-out forwards}
+    .d1{animation-delay:.15s}.d2{animation-delay:.3s}.d3{animation-delay:.45s}.d4{animation-delay:.6s}.d5{animation-delay:.75s}.d6{animation-delay:.9s}.d7{animation-delay:1.05s}
+    .pulse{animation:pulse 2s ease-in-out infinite}
+    .wrap-text{overflow-wrap:break-word;word-break:break-word}
+  </style>
+</head>
+<body>
+<figure class="explainer-visual" role="img" aria-label="Interactive visual explainer of Building Effective Agents with LangGraph">
+  <figcaption class="visually-hidden">Step-through diagrams explaining workflow vs agent patterns, LangGraph infrastructure, augmented LLMs, prompt chaining, routing, parallelization, orchestrator-worker, evaluator-optimizer, and the agent tool-calling loop.</figcaption>
+</figure>
+
+<div id="app">
+  <div class="top-bar"><div class="top-bar-inner"><div id="dotBar" style="display:flex;gap:6px"></div><span class="counter" id="counter">0/0</span></div></div>
+  <div id="content"><div id="beatsContainer" style="max-width:780px;margin:0 auto"></div></div>
+  <div class="bot-bar"><div class="bot-inner"><button id="backBtn">← Back</button><span class="hint">Click · Space · →</span><div style="width:72px"></div></div></div>
+</div>
+
+<script>
+const beats = [
+  // ===== 1: TITLE =====
+  {render:()=>`
+    <div class="beat-wrap"><div class="beat-inner" style="padding-top:32px">
+      <div class="text-center">
+        <h1 style="font-size:38px">Building Effective<br>Agents</h1>
+        <p class="sub" style="margin-top:8px">Anthropic's blog post — built from scratch with LangGraph</p>
+        <p style="color:var(--accent2);font-weight:600;font-size:14px;margin-top:16px">Lance · LangChain</p>
+      </div>
+      <!-- Simple decorative line -->
+      <svg width="80" height="4" viewBox="0 0 80 4" style="margin:24px auto 0">
+        <rect width="80" height="4" rx="2" fill="var(--accent2)" opacity=".3"/>
+      </svg>
+    </div></div>
+  `},
+
+  // ===== 2: WORKFLOW vs AGENT diagram =====
+  {render:()=>`
+    <div class="beat-wrap"><div class="beat-inner">
+      <div class="fig">
+        <span class="tag">Core Distinction</span>
+        <h2>Workflow vs Agent</h2>
+        <p class="sub" style="margin-top:4px;margin-bottom:20px">Scaffolding of predefined paths vs unbounded tool-calling loop</p>
+        <svg viewBox="0 0 700 260" style="width:100%">
+          <!-- Workflow side -->
+          <text x="80" y="30" font-size="16" font-weight="700" fill="var(--ink)">Workflow</text>
+          <text x="80" y="46" font-size="11" fill="var(--ink-light)">Predefined code paths</text>
+          <!-- Workflow boxes -->
+          <g class="a-up d1">
+            <rect x="30" y="60" width="120" height="40" rx="8" fill="#e8e8f0" stroke="#ccc" stroke-width="1.5"/>
+            <text x="90" y="85" font-size="12" text-anchor="middle" fill="var(--ink)" font-weight="600">LLM Call</text>
+          </g>
+          <g class="a-fade d2"><line x1="150" y1="80" x2="190" y2="80" stroke="#bbb" stroke-width="1.5" stroke-dasharray="5,3"/></g>
+          <g class="a-up d2">
+            <polygon points="190,74 202,80 190,86" fill="#bbb"/>
+            <rect x="202" y="60" width="120" height="40" rx="8" fill="#e8e8f0" stroke="#ccc" stroke-width="1.5"/>
+            <text x="262" y="85" font-size="12" text-anchor="middle" fill="var(--ink)" font-weight="600">LLM Call</text>
+          </g>
+          <g class="a-fade d3"><line x1="322" y1="80" x2="362" y2="80" stroke="#bbb" stroke-width="1.5" stroke-dasharray="5,3"/></g>
+          <g class="a-up d3">
+            <polygon points="362,74 374,80 362,86" fill="#bbb"/>
+            <!-- Gate diamond -->
+            <polygon points="374,60 396,80 374,100 352,80" fill="#fff3e0" stroke="#f90" stroke-width="1.5"/>
+            <text x="374" y="84" font-size="10" text-anchor="middle" fill="#e67e00" font-weight="700">Gate</text>
+          </g>
+          <g class="a-fade d4"><line x1="396" y1="80" x2="436" y2="80" stroke="#bbb" stroke-width="1.5" stroke-dasharray="5,3"/></g>
+          <g class="a-up d4">
+            <polygon points="436,74 448,80 436,86" fill="#bbb"/>
+            <rect x="448" y="60" width="120" height="40" rx="8" fill="#e8e8f0" stroke="#ccc" stroke-width="1.5"/>
+            <text x="508" y="85" font-size="12" text-anchor="middle" fill="var(--ink)" font-weight="600">LLM Call</text>
+          </g>
+          <!-- Scaffolding bracket -->
+          <g class="a-fade d5">
+            <line x1="30" y1="48" x2="30" y2="112" stroke="#4361ee" stroke-width="2" opacity=".4"/>
+            <line x1="30" y1="112" x2="568" y2="112" stroke="#4361ee" stroke-width="2" opacity=".4"/>
+            <line x1="568" y1="112" x2="568" y2="48" stroke="#4361ee" stroke-width="2" opacity=".4"/>
+            <text x="299" y="126" font-size="10" fill="var(--accent2)" text-anchor="middle" opacity=".6">Scaffolding</text>
+          </g>
+
+          <!-- Agent side -->
+          <text x="460" y="170" font-size="16" font-weight="700" fill="var(--ink)">Agent</text>
+          <text x="460" y="186" font-size="11" fill="var(--ink-light)">Unbounded tool-calling loop</text>
+          <!-- Loop diagram -->
+          <g class="a-up d2">
+            <rect x="390" y="200" width="110" height="36" rx="8" fill="#e0e7ff" stroke="var(--accent2)" stroke-width="1.5"/>
+            <text x="445" y="223" font-size="11" text-anchor="middle" fill="var(--ink)" font-weight="600">LLM + Tools</text>
+          </g>
+          <g class="a-fade d3">
+            <path d="M500,218 L550,218 L550,248 L500,248" fill="none" stroke="#bbb" stroke-width="1.5"/>
+            <polygon points="500,242 492,248 500,254" fill="#bbb"/>
+          </g>
+          <g class="a-up d3">
+            <rect x="390" y="236" width="110" height="36" rx="8" fill="#e8e8f0" stroke="#ccc" stroke-width="1.5"/>
+            <text x="445" y="259" font-size="11" text-anchor="middle" fill="var(--ink)" font-weight="600">Tool Node</text>
+          </g>
+          <g class="a-fade d4">
+            <line x1="445" y1="200" x2="445" y2="188" stroke="#bbb" stroke-width="1.5"/>
+            <polygon points="439,190 445,180 451,190" fill="#bbb"/>
+            <text x="445" y="178" font-size="9" fill="#999" text-anchor="middle">loop</text>
+          </g>
+          <g class="a-fade d4">
+            <line x1="390" y1="236" x2="360" y2="218" stroke="#bbb" stroke-width="1" stroke-dasharray="3,3"/>
+            <polygon points="362,214 352,218 362,222" fill="#bbb"/>
+            <text x="340" y="214" font-size="8" fill="#999" text-anchor="end">feedback</text>
+          </g>
+          <g class="a-fade d5">
+            <line x1="500" y1="218" x2="550" y2="218" stroke="#bbb" stroke-width="1"/>
+            <text x="530" y="214" font-size="9" fill="#999">action</text>
+          </g>
+        </svg>
+      </div>
+    </div></div>
+  `},
+
+  // ===== 3: WHY LANGGRAPH =====
+  {render:()=>`
+    <div class="beat-wrap"><div class="beat-inner">
+      <div class="fig">
+        <span class="tag">Infrastructure</span>
+        <h2>What LangGraph Provides</h2>
+        <p class="sub" style="margin-top:4px;margin-bottom:16px">Low-level infrastructure — not high-level abstractions</p>
+        <svg viewBox="0 0 700 200" style="width:100%">
+          <!-- 3 columns -->
+          <g class="a-up d1">
+            <rect x="30" y="40" width="190" height="130" rx="12" fill="#f0f4ff" stroke="var(--accent2)" stroke-width="1.5" opacity=".5"/>
+            <text x="125" y="68" font-size="14" font-weight="700" fill="var(--ink)" text-anchor="middle">Persistence</text>
+            <text x="125" y="86" font-size="10" fill="var(--ink-light)" text-anchor="middle">Memory across runs</text>
+            <text x="125" y="102" font-size="10" fill="var(--ink-light)" text-anchor="middle">Human-in-the-loop</text>
+            <text x="125" y="118" font-size="10" fill="var(--ink-light)" text-anchor="middle">Pause &amp; resume</text>
+            <text x="125" y="134" font-size="10" fill="var(--ink-light)" text-anchor="middle">Checkpoint &amp; rollback</text>
+          </g>
+          <g class="a-up d2">
+            <rect x="255" y="40" width="190" height="130" rx="12" fill="#f0f4ff" stroke="var(--accent2)" stroke-width="1.5" opacity=".5"/>
+            <text x="350" y="68" font-size="14" font-weight="700" fill="var(--ink)" text-anchor="middle">Streaming</text>
+            <text x="350" y="86" font-size="10" fill="var(--ink-light)" text-anchor="middle">Token-level streaming</text>
+            <text x="350" y="102" font-size="10" fill="var(--ink-light)" text-anchor="middle">Tool call outputs</text>
+            <text x="350" y="118" font-size="10" fill="var(--ink-light)" text-anchor="middle">Any state value</text>
+            <text x="350" y="134" font-size="10" fill="var(--ink-light)" text-anchor="middle">Custom event streams</text>
+          </g>
+          <g class="a-up d3">
+            <rect x="480" y="40" width="190" height="130" rx="12" fill="#f0f4ff" stroke="var(--accent2)" stroke-width="1.5" opacity=".5"/>
+            <text x="575" y="68" font-size="14" font-weight="700" fill="var(--ink)" text-anchor="middle">Deployment</text>
+            <text x="575" y="86" font-size="10" fill="var(--ink-light)" text-anchor="middle">One-click deploy</text>
+            <text x="575" y="102" font-size="10" fill="var(--ink-light)" text-anchor="middle">Test &amp; debug tools</text>
+            <text x="575" y="118" font-size="10" fill="var(--ink-light)" text-anchor="middle">API auto-generated</text>
+            <text x="575" y="134" font-size="10" fill="var(--ink-light)" text-anchor="middle">5 minutes to prod</text>
+          </g>
+          <!-- Bottom note -->
+          <text x="350" y="186" font-size="10" fill="var(--ink-light)" text-anchor="middle" opacity=".6">LangGraph doesn't abstract prompts or architecture</text>
+          <text x="350" y="200" font-size="10" fill="var(--ink-light)" text-anchor="middle" opacity=".6">— it's infrastructure underneath</text>
+        </svg>
+      </div>
+    </div></div>
+  `},
+
+  // ===== 4: AUGMENTED LLM =====
+  {render:()=>`
+    <div class="beat-wrap"><div class="beat-inner">
+      <div class="fig">
+        <span class="tag">Building Block</span>
+        <h2>Augmented LLM</h2>
+        <p class="sub" style="margin-top:4px;margin-bottom:16px">The foundation for every workflow and agent</p>
+        <svg viewBox="0 0 700 200" style="width:100%">
+          <!-- Structured Output -->
+          <g class="a-up d1">
+            <rect x="40" y="20" width="290" height="150" rx="12" fill="#fff" stroke="#ddd" stroke-width="1.5"/>
+            <text x="185" y="50" font-size="14" font-weight="700" fill="var(--ink)" text-anchor="middle">Structured Output</text>
+            <rect x="60" y="65" width="100" height="36" rx="8" fill="#e0e7ff" stroke="var(--accent2)" stroke-width="1"/>
+            <text x="110" y="88" font-size="11" text-anchor="middle" fill="var(--ink)" font-weight="600">Schema</text>
+            <g class="a-fade d2">
+              <line x1="160" y1="83" x2="200" y2="83" stroke="#bbb" stroke-width="1.5"/>
+              <polygon points="200,77 212,83 200,89" fill="#bbb"/>
+            </g>
+            <g class="a-up d2">
+              <rect x="212" y="65" width="100" height="36" rx="8" fill="#e8f5e9" stroke="#4caf50" stroke-width="1"/>
+              <text x="262" y="88" font-size="11" text-anchor="middle" fill="#2e7d32" font-weight="600">Valid JSON</text>
+            </g>
+            <text x="185" y="130" font-size="10" fill="var(--ink-light)" text-anchor="middle">Bind Pydantic schema → LLM returns structured data</text>
+            <text x="185" y="146" font-size="10" fill="var(--ink-light)" text-anchor="middle">No parsing errors. Guaranteed format.</text>
+          </g>
+
+          <!-- Tool Calling -->
+          <g class="a-up d3">
+            <rect x="370" y="20" width="290" height="150" rx="12" fill="#fff" stroke="#ddd" stroke-width="1.5"/>
+            <text x="515" y="50" font-size="14" font-weight="700" fill="var(--ink)" text-anchor="middle">Tool Calling</text>
+            <rect x="390" y="65" width="100" height="36" rx="8" fill="#e0e7ff" stroke="var(--accent2)" stroke-width="1"/>
+            <text x="440" y="88" font-size="11" text-anchor="middle" fill="var(--ink)" font-weight="600">Tools</text>
+            <g class="a-fade d4">
+              <line x1="490" y1="83" x2="530" y2="83" stroke="#bbb" stroke-width="1.5"/>
+              <polygon points="530,77 542,83 530,89" fill="#bbb"/>
+            </g>
+            <g class="a-up d4">
+              <rect x="542" y="65" width="100" height="36" rx="8" fill="#fff3e0" stroke="#f90" stroke-width="1"/>
+              <text x="592" y="88" font-size="11" text-anchor="middle" fill="#e67e00" font-weight="600">Payload</text>
+            </g>
+            <text x="515" y="128" font-size="9" fill="var(--ink-light)" text-anchor="middle">Bind functions → LLM produces</text>
+            <text x="515" y="142" font-size="9" fill="var(--ink-light)" text-anchor="middle">tool call payloads</text>
+            <text x="515" y="158" font-size="9" fill="var(--ink-light)" text-anchor="middle">You execute. LLM decides when.</text>
+          </g>
+        </svg>
+      </div>
+    </div></div>
+  `},
+
+  // ===== 5: FIVE PATTERNS OVERVIEW =====
+  {render:()=>`
+    <div class="beat-wrap"><div class="beat-inner">
+      <div class="fig">
+        <span class="tag">Patterns</span>
+        <h2>5 Workflow Patterns</h2>
+        <p class="sub" style="margin-top:4px;margin-bottom:16px">From simple chains to feedback loops</p>
+        <svg viewBox="0 0 700 240" style="width:100%">
+          ${[ 
+            {x:20, l:'Prompt\nChaining', d:'Sequential steps\nwith gates', c:'#e0e7ff'},
+            {x:156, l:'Routing', d:'LLM decides\nwhich path', c:'#e8f5e9'},
+            {x:292, l:'Parallelization', d:'Fan-out, fan-in\nLLM calls', c:'#fff3e0'},
+            {x:428, l:'Orchestrator-\nWorker', d:'LLM spawns\ndynamic workers', c:'#fce4ec'},
+            {x:560, l:'Evaluator-\nOptimizer', d:'Generate & Grade\n→ Feedback loop', c:'#f3e5f5'}
+          ].map((c,i)=>`
+            <g class="a-up d${i+1}">
+              <rect x="${c.x}" y="60" width="120" height="140" rx="12" fill="${c.c}" stroke="#ccc" stroke-width="1"/>
+              <text x="${c.x+60}" y="92" font-size="12" font-weight="700" fill="var(--ink)" text-anchor="middle">${c.l.includes('\n')?c.l.split('\n')[0]:c.l}</text>
+              ${c.l.includes('\n')?`<text x="${c.x+60}" y="108" font-size="12" font-weight="700" fill="var(--ink)" text-anchor="middle">${c.l.split('\n')[1]}</text>`:''}
+              <text x="${c.x+60}" y="${c.l.includes('\n')?130:110}" font-size="9" fill="var(--ink-light)" text-anchor="middle">${c.d.split('\n')[0]}</text>
+              ${c.d.includes('\n')?`<text x="${c.x+60}" y="${c.l.includes('\n')?144:124}" font-size="9" fill="var(--ink-light)" text-anchor="middle">${c.d.split('\n')[1]}</text>`:''}
+              <!-- Number badge -->
+              <circle cx="${c.x+60}" cy="74" r="10" fill="var(--accent2)" opacity=".15"/>
+              <text x="${c.x+60}" y="78" font-size="10" font-weight="700" fill="var(--accent2)" text-anchor="middle">${i+1}</text>
+            </g>
+          `).join('')}
+          <!-- Arrow connections -->
+          <g class="a-fade d2"><line x1="140" y1="140" x2="156" y2="140" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/></g>
+          <g class="a-fade d3"><line x1="276" y1="140" x2="292" y2="140" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/></g>
+          <g class="a-fade d4"><line x1="412" y1="140" x2="428" y2="140" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/></g>
+          <g class="a-fade d5"><line x1="548" y1="140" x2="560" y2="140" stroke="#ccc" stroke-width="1" stroke-dasharray="3,3"/></g>
+        </svg>
+      </div>
+    </div></div>
+  `},
+
+  // ===== 6: PROMPT CHAINING + ROUTING diagrams =====
+  {render:()=>`
+    <div class="beat-wrap"><div class="beat-inner">
+      <div class="fig">
+        <span class="tag">Workflows</span>
+        <h2>Prompt Chaining &amp; Routing</h2>
+        <p class="sub" style="margin-top:4px;margin-bottom:16px">Sequential decomposition &amp; conditional branching</p>
+        <svg viewBox="0 0 700 260" style="width:100%">
+          <!-- Prompt Chaining -->
+          <text x="185" y="28" font-size="14" font-weight="700" fill="var(--ink)" text-anchor="middle">Prompt Chaining</text>
+          <rect x="20" y="42" width="110" height="36" rx="8" fill="#e0e7ff" stroke="var(--accent2)" stroke-width="1.2"/>
+          <text x="75" y="65" font-size="11" text-anchor="middle" fill="var(--ink)" font-weight="600">Generate</text>
+          <g class="a-fade d1"><line x1="130" y1="60" x2="165" y2="60" stroke="#bbb" stroke-width="1.5"/><polygon points="165,54 177,60 165,66" fill="#bbb"/></g>
+          <g class="a-pop d1"><polygon points="177,40 199,60 177,80 155,60" fill="#fff3e0" stroke="#f90" stroke-width="1.2"/><text x="177" y="64" font-size="9" text-anchor="middle" fill="#e67e00" font-weight="700">Gate</text></g>
+          <g class="a-fade d2"><line x1="199" y1="60" x2="234" y2="60" stroke="#bbb" stroke-width="1.5"/><polygon points="234,54 246,60 234,66" fill="#bbb"/></g>
+          <rect x="246" y="42" width="110" height="36" rx="8" fill="#e0e7ff" stroke="var(--accent2)" stroke-width="1.2"/>
+          <text x="301" y="65" font-size="11" text-anchor="middle" fill="var(--ink)" font-weight="600">Improve</text>
+          <g class="a-fade d3"><line x1="356" y1="60" x2="368" y2="60" stroke="#bbb" stroke-width="1.5"/><polygon points="368,54 380,60 368,66" fill="#bbb"/></g>
+          <rect x="380" y="42" width="110" height="36" rx="8" fill="#e0e7ff" stroke="var(--accent2)" stroke-width="1.2"/>
+          <text x="435" y="65" font-size="11" text-anchor="middle" fill="var(--ink)" font-weight="600">Polish</text>
+          <!-- Fail path -->
+          <g class="a-fade d2"><line x1="177" y1="80" x2="177" y2="100" stroke="#e74c3c" stroke-width="1" stroke-dasharray="3,3"/><text x="190" y="94" font-size="9" fill="#e74c3c">fail → end</text></g>
+
+          <!-- Routing -->
+          <text x="185" y="138" font-size="14" font-weight="700" fill="var(--ink)" text-anchor="middle">Routing</text>
+          <!-- Input -->
+          <rect x="40" y="155" width="80" height="36" rx="8" fill="#e8e8f0" stroke="#ccc" stroke-width="1.2"/>
+          <text x="80" y="178" font-size="11" text-anchor="middle" fill="var(--ink)" font-weight="600">Input</text>
+          <g class="a-fade d2"><line x1="120" y1="173" x2="155" y2="173" stroke="#bbb" stroke-width="1.5"/><polygon points="155,167 167,173 155,179" fill="#bbb"/></g>
+          <!-- Router -->
+          <g class="a-pop d2"><polygon points="167,153 199,173 167,193 135,173" fill="#e0e7ff" stroke="var(--accent2)" stroke-width="1.5"/><text x="167" y="177" font-size="10" text-anchor="middle" fill="var(--ink)" font-weight="600">Router</text></g>
+          <!-- Branches -->
+          <g class="a-fade d3"><line x1="199" y1="173" x2="240" y2="154" stroke="#bbb" stroke-width="1.5"/><polygon points="240,148 252,154 240,160" fill="#bbb"/></g>
+          <g class="a-up d3"><rect x="252" y="140" width="80" height="26" rx="8" fill="#e8f5e9" stroke="#4caf50" stroke-width="1"/><text x="292" y="158" font-size="10" text-anchor="middle" fill="#2e7d32" font-weight="600">Story</text></g>
+          <g class="a-fade d3"><line x1="199" y1="173" x2="240" y2="185" stroke="#bbb" stroke-width="1.5"/><polygon points="240,179 252,185 240,191" fill="#bbb"/></g>
+          <g class="a-up d3"><rect x="252" y="172" width="80" height="26" rx="8" fill="#fff3e0" stroke="#f90" stroke-width="1"/><text x="292" y="190" font-size="10" text-anchor="middle" fill="#e67e00" font-weight="600">Joke</text></g>
+          <g class="a-fade d4"><line x1="199" y1="173" x2="240" y2="216" stroke="#bbb" stroke-width="1.5"/><polygon points="240,210 252,216 240,222" fill="#bbb"/></g>
+          <g class="a-up d3"><rect x="252" y="204" width="80" height="26" rx="8" fill="#fce4ec" stroke="#e74c3c" stroke-width="1"/><text x="292" y="222" font-size="10" text-anchor="middle" fill="#c0392b" font-weight="600">Poem</text></g>
+          <!-- structured output note -->
+          <text x="167" y="248" font-size="10" fill="var(--ink-light)" text-anchor="middle" opacity=".6">Router uses structured output to guarantee valid decisions</text>
+        </svg>
+      </div>
+    </div></div>
+  `},
+
+  // ===== 7: ORCHESTRATOR-WORKER + EVALUATOR-OPTIMIZER =====
+  {render:()=>`
+    <div class="beat-wrap"><div class="beat-inner">
+      <div class="fig">
+        <span class="tag">Workflows</span>
+        <h2>Orchestrator-Worker &amp; Evaluator-Optimizer</h2>
+        <p class="sub" style="margin-top:4px;margin-bottom:16px">Dynamic spawning &amp; feedback loops</p>
+        <svg viewBox="0 0 700 420" style="width:100%">
+          <!-- ===== Orchestrator-Worker ===== -->
+          <text x="350" y="22" font-size="14" font-weight="700" fill="var(--ink)" text-anchor="middle">Orchestrator-Worker</text>
+          <!-- Orchestrator -->
+          <g class="a-pop d1"><rect x="40" y="40" width="130" height="44" rx="10" fill="var(--accent2)" opacity=".12"/><rect x="42" y="42" width="126" height="40" rx="8" fill="var(--accent2)" opacity=".08"/><text x="105" y="68" font-size="13" font-weight="700" fill="var(--accent2)" text-anchor="middle">Orchestrator</text></g>
+          <!-- Dashed lines to workers -->
+          <g class="a-fade d2"><line x1="170" y1="54" x2="230" y2="33" stroke="var(--accent2)" stroke-width="1" stroke-dasharray="4,3"/><polygon points="230,27 242,33 230,39" fill="var(--accent2)"/></g>
+          <g class="a-fade d3"><line x1="170" y1="62" x2="230" y2="71" stroke="var(--accent2)" stroke-width="1" stroke-dasharray="4,3"/><polygon points="230,65 242,71 230,77" fill="var(--accent2)"/></g>
+          <g class="a-fade d4"><line x1="170" y1="70" x2="230" y2="109" stroke="var(--accent2)" stroke-width="1" stroke-dasharray="4,3"/><polygon points="230,103 242,109 230,115" fill="var(--accent2)"/></g>
+          <!-- Workers -->
+          <g class="a-up d2"><rect x="242" y="18" width="90" height="30" rx="8" fill="#fff" stroke="#ddd" stroke-width="1"/><text x="287" y="38" font-size="11" text-anchor="middle" fill="var(--ink)" font-weight="600">Worker 1</text></g>
+          <g class="a-up d3"><rect x="242" y="56" width="90" height="30" rx="8" fill="#fff" stroke="#ddd" stroke-width="1"/><text x="287" y="76" font-size="11" text-anchor="middle" fill="var(--ink)" font-weight="600">Worker 2</text></g>
+          <g class="a-up d4"><rect x="242" y="94" width="90" height="30" rx="8" fill="#fff" stroke="#ddd" stroke-width="1"/><text x="287" y="114" font-size="11" text-anchor="middle" fill="var(--ink)" font-weight="600">Worker N</text></g>
+          <!-- Synthesizer -->
+          <g class="a-fade d5"><line x1="338" y1="71" x2="385" y2="71" stroke="#bbb" stroke-width="1.5"/><polygon points="385,65 397,71 385,77" fill="#bbb"/></g>
+          <g class="a-up d5"><rect x="397" y="54" width="100" height="34" rx="8" fill="#e8f5e9" stroke="#4caf50" stroke-width="1"/><text x="447" y="76" font-size="11" text-anchor="middle" fill="#2e7d32" font-weight="600">Synthesizer</text></g>
+          <!-- send API note -->
+          <text x="350" y="142" font-size="10" fill="var(--ink-light)" text-anchor="middle" opacity=".6">LangGraph send() — spawn workers dynamically</text>
+
+          <!-- ===== Evaluator-Optimizer ===== -->
+          <text x="350" y="168" font-size="14" font-weight="700" fill="var(--ink)" text-anchor="middle">Evaluator-Optimizer</text>
+          <!-- Generator -->
+          <g class="a-up d3"><rect x="50" y="190" width="110" height="40" rx="10" fill="#e0e7ff" stroke="var(--accent2)" stroke-width="1.5"/><text x="105" y="216" font-size="12" text-anchor="middle" fill="var(--ink)" font-weight="600">Generator</text></g>
+          <!-- Arrow down -->
+          <g class="a-fade d4"><line x1="105" y1="230" x2="105" y2="270" stroke="#bbb" stroke-width="1.5"/><polygon points="99,270 105,282 111,270" fill="#bbb"/></g>
+          <!-- Evaluator -->
+          <g class="a-up d4"><rect x="50" y="282" width="110" height="40" rx="10" fill="#fff3e0" stroke="#f90" stroke-width="1.5"/><text x="105" y="308" font-size="12" text-anchor="middle" fill="#e67e00" font-weight="600">Evaluator</text></g>
+          <!-- Feedback loop arrow -->
+          <g class="a-fade d5">
+            <path d="M50,302 L25,302 L25,210 L50,210" fill="none" stroke="#e74c3c" stroke-width="1.2" stroke-dasharray="4,3"/>
+            <polygon points="44,214 50,204 56,214" fill="#e74c3c"/>
+            <text x="19" y="258" font-size="9" fill="#e74c3c" text-anchor="end" transform="rotate(-90,19,258)">feedback loop</text>
+          </g>
+          <!-- Pass path -->
+          <g class="a-fade d5"><line x1="160" y1="302" x2="190" y2="302" stroke="#4caf50" stroke-width="1.2"/><polygon points="190,296 202,302 190,308" fill="#4caf50"/><text x="214" y="306" font-size="9" fill="#4caf50" font-weight="600">pass ✓</text></g>
+          <!-- Fail path -->
+          <g class="a-fade d5"><line x1="105" y1="282" x2="105" y2="340" stroke="#e74c3c" stroke-width="1" stroke-dasharray="3,3" opacity=".5"/><text x="115" y="348" font-size="9" fill="#e74c3c" opacity=".5">fail → retry</text></g>
+        </svg>
+      </div>
+    </div></div>
+  `},
+
+  // ===== 8: THE AGENT =====
+  {render:()=>`
+    <div class="beat-wrap"><div class="beat-inner">
+      <div class="fig">
+        <span class="tag">Agent</span>
+        <h2>The Agent — Tool-Calling Loop</h2>
+        <p class="sub" style="margin-top:4px;margin-bottom:16px">Remove the scaffolding. Let the LLM drive.</p>
+        <svg viewBox="0 0 700 280" style="width:100%">
+          <!-- Main loop -->
+          <!-- Input -->
+          <g class="a-up d1"><rect x="20" y="120" width="80" height="40" rx="10" fill="#e8e8f0" stroke="#ccc" stroke-width="1.2"/><text x="60" y="145" font-size="12" text-anchor="middle" fill="var(--ink)" font-weight="600">Input</text></g>
+          <g class="a-fade d1"><line x1="100" y1="140" x2="135" y2="140" stroke="#bbb" stroke-width="1.5"/><polygon points="135,134 147,140 135,146" fill="#bbb"/></g>
+
+          <!-- LLM + Tools -->
+          <g class="a-pop d2">
+            <rect x="147" y="105" width="140" height="70" rx="12" fill="var(--accent2)" opacity=".08"/>
+            <rect x="150" y="108" width="134" height="64" rx="10" fill="#e0e7ff" stroke="var(--accent2)" stroke-width="2"/>
+            <text x="217" y="138" font-size="13" font-weight="700" fill="var(--accent2)" text-anchor="middle">LLM + Tools</text>
+            <text x="217" y="156" font-size="10" fill="var(--ink-light)" text-anchor="middle">Decides which tool to call</text>
+          </g>
+
+          <!-- Arrow to Tool Node -->
+          <g class="a-fade d3">
+            <line x1="287" y1="115" x2="340" y2="115" stroke="#bbb" stroke-width="1.5"/>
+            <polygon points="340,109 352,115 340,121" fill="#bbb"/>
+            <text x="314" y="108" font-size="9" fill="#999" text-anchor="middle">tool call</text>
+          </g>
+
+          <!-- Tool Node -->
+          <g class="a-up d3">
+            <rect x="352" y="95" width="130" height="60" rx="12" fill="#fff" stroke="#ddd" stroke-width="1.5"/>
+            <text x="417" y="125" font-size="13" font-weight="700" fill="var(--ink)" text-anchor="middle">Tool Node</text>
+            <text x="417" y="143" font-size="10" fill="var(--ink-light)" text-anchor="middle">Executes the action</text>
+          </g>
+
+          <!-- Environment feedback arrow -->
+          <g class="a-fade d4">
+            <path d="M417,155 L417,180 L217,180 L217,175" fill="none" stroke="#e74c3c" stroke-width="1.5" stroke-dasharray="5,3"/>
+            <polygon points="211,175 217,185 223,175" fill="#e74c3c"/>
+            <text x="310" y="196" font-size="10" fill="#e74c3c" text-anchor="middle">environmental feedback</text>
+          </g>
+
+          <!-- Conditional edge -->
+          <g class="a-fade d5">
+            <line x1="482" y1="115" x2="550" y2="115" stroke="#bbb" stroke-width="1"/>
+            <text x="516" y="108" font-size="9" fill="#999" text-anchor="middle">more?</text>
+          </g>
+          <g class="a-pop d5"><polygon points="550,95 570,115 550,135 530,115" fill="#e8f5e9" stroke="#4caf50" stroke-width="1.2"/><text x="550" y="119" font-size="10" text-anchor="middle" fill="#2e7d32" font-weight="700">Done?</text></g>
+          <g class="a-fade d6"><line x1="570" y1="115" x2="610" y2="115" stroke="#bbb" stroke-width="1.5"/><polygon points="610,109 622,115 610,121" fill="#bbb"/></g>
+          <g class="a-up d6"><rect x="622" y="100" width="60" height="30" rx="8" fill="#e8f5e9" stroke="#4caf50" stroke-width="1"/><text x="652" y="119" font-size="10" text-anchor="middle" fill="#2e7d32" font-weight="600">End</text></g>
+
+          <!-- Loop indication -->
+          <g class="a-fade d4">
+            <path d="M550,135 L550,250 L217,250 L217,185" fill="none" stroke="var(--accent2)" stroke-width="1.5" stroke-dasharray="5,3"/>
+            <polygon points="211,185 217,195 223,185" fill="var(--accent2)"/>
+            <text x="380" y="266" font-size="10" fill="var(--accent2)" text-anchor="middle" font-weight="600">↻ Loop until no more tool calls</text>
+          </g>
+
+          <!-- Action label -->
+          <g class="a-fade d3">
+            <text x="417" y="82" font-size="9" fill="#999" text-anchor="middle">action (tool execute)</text>
+          </g>
+        </svg>
+      </div>
+    </div></div>
+  `},
+
+  // ===== 9: WHEN TO USE =====
+  {render:()=>`
+    <div class="beat-wrap"><div class="beat-inner">
+      <div class="fig">
+        <span class="tag">Decision Guide</span>
+        <h2>Workflow vs Agent — When to Use What</h2>
+        <p class="sub" style="margin-top:4px;margin-bottom:16px">The pragmatic choice depends on your problem</p>
+        <svg viewBox="0 0 700 200" style="width:100%">
+          <!-- Today: Workflows -->
+          <g class="a-up d1">
+            <rect x="30" y="45" width="290" height="130" rx="14" fill="#f0f4ff" stroke="var(--accent2)" stroke-width="1.5" opacity=".6"/>
+            <text x="175" y="75" font-size="16" font-weight="700" fill="var(--accent2)" text-anchor="middle">✅ Today: Workflows</text>
+            <text x="175" y="100" font-size="12" fill="var(--ink-light)" text-anchor="middle">Known tool sequences</text>
+            <text x="175" y="118" font-size="12" fill="var(--ink-light)" text-anchor="middle">Need reliability guarantees</text>
+            <text x="175" y="136" font-size="12" fill="var(--ink-light)" text-anchor="middle">Production deployments</text>
+            <text x="175" y="154" font-size="12" fill="var(--ink-light)" text-anchor="middle">Most problems today</text>
+          </g>
+          <!-- Future: Agents -->
+          <g class="a-up d2">
+            <rect x="380" y="45" width="290" height="130" rx="14" fill="#fff3e0" stroke="#f90" stroke-width="1.5" opacity=".6"/>
+            <text x="525" y="75" font-size="16" font-weight="700" fill="#e67e00" text-anchor="middle">🔮 Future: Agents</text>
+            <text x="525" y="100" font-size="12" fill="var(--ink-light)" text-anchor="middle">Open-ended problems</text>
+            <text x="525" y="118" font-size="12" fill="var(--ink-light)" text-anchor="middle">Unpredictable tool needs</text>
+            <text x="525" y="136" font-size="12" fill="var(--ink-light)" text-anchor="middle">Capable reasoning models</text>
+            <text x="525" y="154" font-size="12" fill="var(--ink-light)" text-anchor="middle">SWE-bench style tasks</text>
+          </g>
+          <!-- Arrow between -->
+          <g class="a-fade d3"><text x="350" y="115" font-size="20" fill="#ccc" text-anchor="middle">→</text></g>
+          <!-- Bottom note -->
+          <text x="350" y="186" font-size="9" fill="var(--ink-light)" text-anchor="middle" opacity=".5">"As models get better at tool calling,</text>
+          <text x="350" y="198" font-size="9" fill="var(--ink-light)" text-anchor="middle" opacity=".5">agents will become more reliable in production"</text>
+        </svg>
+      </div>
+    </div></div>
+  `},
+
+  // ===== 10: KEY TAKEAWAYS =====
+  {render:()=>`
+    <div class="beat-wrap"><div class="beat-inner" style="padding-bottom:16px">
+      <div class="fig" style="border-color:var(--accent2)">
+        <span class="tag" style="background:#4caf50">Summary</span>
+        <h2>Key Takeaways</h2>
+        <p class="sub" style="margin-top:4px;margin-bottom:20px">What to remember from this talk</p>
+        <svg viewBox="0 0 700 200" style="width:100%">
+          ${[
+            'Workflows = scaffolding • Agents = unbounded',
+            'LangGraph = infrastructure (persistence, streaming, deployment)',
+            'Structured output powers every workflow pattern',
+            'Agents are simple: tool-calling in a loop',
+            'Start with workflows. Graduate to agents.'
+          ].map((t,i)=>`
+            <g class="a-up d${i+1}">
+              <rect x="50" y="${20+i*34}" width="600" height="28" rx="6" fill="${i===4?'#e0e7ff':'#f8f8fc'}" stroke="${i===4?'var(--accent2)':'#eee'}" stroke-width="1"/>
+              <text x="75" y="${39+i*34}" font-size="12" fill="var(--ink)" font-weight="${i===4?'700':'400'}">${i+1}. ${t}</text>
+              <circle cx="65" cy="${34+i*34}" r="5" fill="${i===4?'var(--accent2)':'#ccc'}"/>
+            </g>
+          `).join('')}
+        </svg>
+        <div style="margin-top:16px;padding:14px 18px;background:#f0f4ff;border-radius:10px;text-align:center">
+          <p style="font-size:14px;color:var(--accent2);font-weight:600">Watch Lance's full tutorial for code walkthroughs of each pattern</p>
+        </div>
+      </div>
+    </div></div>
+  `}
+];
+
+let currentIndex = -1;
+let backStack = [];
+
+function renderDotBar() {
+  const bar = document.getElementById('dotBar');
+  const total = beats.length;
+  bar.innerHTML = beats.map((b,i)=>
+    `<div class="dot ${i<=currentIndex?(i===currentIndex?'active':'done'):''}" data-index="${i}"></div>`
+  ).join('');
+  document.getElementById('counter').textContent = `${currentIndex+1}/${total}`;
+}
+
+function advance() {
+  if (currentIndex >= beats.length - 1) return;
+  backStack.push(currentIndex);
+  currentIndex++;
+  appendBeat(currentIndex);
+  renderDotBar();
+  updateBackBtn();
+}
+
+function goBack() {
+  if (backStack.length === 0) return;
+  currentIndex = backStack.pop();
+  trimBeats();
+  renderDotBar();
+  updateBackBtn();
+}
+
+function appendBeat(index) {
+  const container = document.getElementById('beatsContainer');
+  const temp = document.createElement('div');
+  temp.innerHTML = beats[index].render();
+  const el = temp.firstElementChild;
+  container.appendChild(el);
+  requestAnimationFrame(() => {
+    const inner = el.querySelector('.beat-inner');
+    if (inner) {
+      inner.classList.add('visible');
+      inner.scrollIntoView({ behavior:'smooth', block:'center' });
+    }
+  });
+}
+
+function trimBeats() {
+  const container = document.getElementById('beatsContainer');
+  while (container.children.length > currentIndex + 1) {
+    container.removeChild(container.lastChild);
+  }
+}
+
+function updateBackBtn() {
+  const btn = document.getElementById('backBtn');
+  btn.classList.toggle('show', backStack.length > 0);
+}
+
+// Events
+document.addEventListener('keydown', e => {
+  if (e.key === ' ' || e.key === 'ArrowRight') { e.preventDefault(); advance(); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); goBack(); }
+});
+document.getElementById('app').addEventListener('click', e => {
+  if (e.target.closest('#backBtn, .bot-bar, .top-bar, .dot')) return;
+  advance();
+});
+document.getElementById('backBtn').addEventListener('click', e => { e.stopPropagation(); goBack(); });
+
+// Touch swipe
+let tx = 0;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; });
+document.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - tx;
+  if (Math.abs(dx) > 60) dx < 0 ? advance() : goBack();
+});
+
+// Init
+renderDotBar();
+</script>
+</body>
+</html>
