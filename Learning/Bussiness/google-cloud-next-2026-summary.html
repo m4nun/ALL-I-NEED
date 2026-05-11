@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>สรุปงาน Google Cloud Next 2026: การเดิมพันครั้งใหญ่ของ Google</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+    * { font-family: 'Noto Sans Thai', 'Inter', sans-serif; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-fade-up { animation: fadeUp 0.5s ease-out forwards; }
+    body { min-height: 100vh; scroll-behavior: smooth; }
+    .beat-card { transition: all 0.3s ease-out; }
+    .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+  </style>
+</head>
+<body class="bg-white text-slate-800 cursor-pointer select-none">
+  <!-- Progress Bar -->
+  <div class="fixed top-0 left-0 w-full h-1 bg-slate-100 z-50">
+    <div id="progress" class="h-full bg-indigo-600 transition-all duration-300" style="width: 0%"></div>
+  </div>
+
+  <!-- Content Area -->
+  <main id="content" class="max-w-3xl mx-auto px-6 pt-20 pb-40 space-y-12">
+    <!-- Beats will be injected here -->
+  </main>
+
+  <!-- Navigation Hints -->
+  <div class="fixed bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-4 text-slate-400 text-sm">
+    <button id="backBtn" class="px-4 py-2 rounded-full border border-slate-200 hover:bg-slate-50 transition-colors hidden">ย้อนกลับ</button>
+    <span id="counter">1 / 13</span>
+    <span class="hidden md:inline">คลิกเพื่อไปต่อ หรือใช้แป้นพิมพ์ ➔</span>
+  </div>
+
+  <script>
+    const beats = [
+      {
+        type: 'title',
+        title: 'Google Cloud Next 2026',
+        subtitle: 'การเดิมพันครั้งใหญ่ที่สุดในประวัติศาสตร์เทคโนโลยีสู่ยุค Agentic AI',
+        meta: 'สรุปโดย Gemini CLI | จากงาน Google Cloud Next, Las Vegas'
+      },
+      {
+        type: 'center',
+        content: '"ยุคของการทดลองจบลงแล้ว ยุคของเอเจนต์ (Agentic AI) มาถึงแล้ว"',
+        subcontent: '— Thomas Kurian, CEO Google Cloud'
+      },
+      {
+        type: 'stat',
+        label: 'ผลประกอบการปี 2025',
+        value: '$132,200 ล้านดอลลาร์',
+        desc: 'Alphabet คือบริษัทที่ทำกำไรมากที่สุดในโลกในปีที่ผ่านมา โดยมีรายได้ทะลุ 4 แสนล้านดอลลาร์เป็นครั้งแรก'
+      },
+      {
+        type: 'compare',
+        left: {
+          title: 'อดีตที่แข็งแกร่ง (Search)',
+          items: ['รายได้ 85% มาจาก Search & YouTube', 'เป็นธุรกิจหลักที่สร้างกระแสเงินสด', 'เติบโตในอัตราปกติ']
+        },
+        right: {
+          title: 'อนาคตที่เร้าใจ (Cloud)',
+          items: ['สัดส่วนรายได้ 15% แต่โตถึง 36%', 'กำไรสุทธิ 1.39 หมื่นล้านดอลลาร์', 'เติบโตเร็วกว่าธุรกิจหลักเกือบ 3 เท่า']
+        }
+      },
+      {
+        type: 'list',
+        title: 'การลงทุนเพื่ออนาคต (Capex)',
+        items: [
+          'ปี 2022: ลงทุน 3.1 หมื่นล้านดอลลาร์',
+          'ปี 2026: ลงทุนพุ่งสูงถึง 1.75 แสนล้านดอลลาร์ (เพิ่มขึ้น 6 เท่า)',
+          'ปี 2027: คาดว่าจะเพิ่มขึ้นอีกเพื่อรองรับ AI Infrastructure'
+        ]
+      },
+      {
+        type: 'question',
+        q: 'ทำไม Google ถึงกล้าเดิมพันสูงขนาดนี้?',
+        a: 'เพราะ AI ยิ่งโต ความต้องการใช้ Cloud ก็ยิ่งเพิ่มตาม Google จึงไม่ได้มองว่า Cloud เป็นแค่ธุรกิจหนึ่ง แต่เป็น "เครื่องยนต์ใหม่" ที่จะขับเคลื่อนเศรษฐกิจ AI ทั้งหมด'
+      },
+      {
+        type: 'step',
+        title: 'ป้อมปราการที่ยากจะเลียนแบบ (Infrastructure)',
+        steps: [
+          { t: 'Vertically Integrated', d: 'ออกแบบเองตั้งแต่ชิป ระบบระบายความร้อน ไปจนถึงซอฟต์แวร์' },
+          { t: 'TPU Gen 8', d: 'เปิดตัว TPU 8T (สำหรับฝึกสอน) และ TPU 8i (สำหรับการใช้งานจริง/Inference)' },
+          { t: 'Scale', d: 'เครือข่ายความเร็วสูงที่เชื่อมต่อชิปได้กว่า 134,000 ตัวพร้อมกัน' }
+        ]
+      },
+      {
+        type: 'section',
+        title: 'กรณีศึกษา: AI ทำงานแทนคน (Real World Agents)',
+        items: [
+          { h: 'City Sky (การเงิน)', b: 'ผู้ช่วย AI ดูแลทรัพย์สินมหาเศรษฐี ให้คำแนะนำ Real-time ได้หลายภาษา' },
+          { h: 'Capcom (เกม)', b: 'ใช้ AI เล่นเกมแทนคนเพื่อหาบั๊ก ประหยัดเวลาไปได้กว่า 30,000 ชั่วโมงต่อเดือน' },
+          { h: 'Aeon 360 (ค้าปลีก)', b: 'วิเคราะห์ข้อมูลระดับบุคคล นำเสนอโปรโมชั่น (เช่น ผ่อน 0%) ทันทีที่จุดชำระเงิน' }
+        ]
+      },
+      {
+        type: 'callout',
+        title: 'Customer Zero',
+        content: 'ภายใน Google เอง โค้ดใหม่ที่เขียนขึ้นเกือบ 75% ถูกเขียนโดย AI (เพิ่มจาก 50% เมื่อปลายปีก่อนภายในเวลาไม่กี่เดือน)'
+      },
+      {
+        type: 'tip',
+        title: 'ความปลอดภัยคือหัวใจ',
+        content: 'Google ปิดดีลซื้อบริษัท Cyber Security (Wiz) มูลค่า 3.2 หมื่นล้านดอลลาร์ เพื่อสร้างความเชื่อมั่นในระดับ Enterprise โดยลดเวลาตรวจสอบภัยคุกคามจาก 30 นาทีเหลือเพียง 60 วินาที'
+      },
+      {
+        type: 'section',
+        title: 'AI Beyond Screen: โลกของหุ่นยนต์',
+        items: [
+          { h: 'Boston Dynamics', b: 'ใส่ Gemini เข้าไปในหุ่นยนต์ Atlas เพื่อทำงานจริงในโรงงาน Hyundai' },
+          { h: 'Miroka', b: 'หุ่นยนต์เพื่อนคู่คิดในโรงพยาบาลเด็กและศูนย์ดูแลผู้สูงอายุ' },
+          { h: 'Bio-Arm', b: 'แขนกลในห้องแล็บที่หยิบจับสิ่งของได้ละเอียดเหมือนช่างฝีมือ' }
+        ]
+      },
+      {
+        type: 'center',
+        content: 'Google ไม่ได้แค่ต้องการแข่งในตลาด AI แต่กำลังวางตัวเองเป็น "โครงสร้างพื้นฐาน" ของเศรษฐกิจ AI ทั้งหมด',
+        subcontent: '— สรุปประเด็นสำคัญจากงาน'
+      },
+      {
+        type: 'end',
+        title: 'บทสรุป: ผู้ชนะในเกมยาว',
+        items: [
+          'ยุคการทดลองจบแล้ว ต่อจากนี้คือการสเกลใช้งานจริง',
+          'เงินไหลเข้า Infrastructure ในระยะสั้น แต่จะไหลไปหาคนสร้างรายได้จริงในระยะยาว',
+          'คนที่ได้เปรียบที่สุด คือคนที่อยู่ในทุกเลเยอร์ของระบบนิเวศนี้'
+        ],
+        highlight: 'ติดตาม Digital Frontier เพื่อไม่พลาดทุกนวัตกรรมเปลี่ยนโลก'
+      }
+    ];
+
+    let currentStep = 0;
+    const content = document.getElementById('content');
+    const progress = document.getElementById('progress');
+    const counter = document.getElementById('counter');
+    const backBtn = document.getElementById('backBtn');
+
+    function renderBeat(beat) {
+      const div = document.createElement('div');
+      div.className = 'beat-card animate-fade-up opacity-0';
+      
+      let html = '';
+      switch(beat.type) {
+        case 'title':
+          html = `
+            <div class="text-center py-12">
+              <span class="text-indigo-600 font-bold tracking-widest text-xs uppercase mb-4 block">${beat.meta}</span>
+              <h1 class="text-4xl md:text-5xl font-extrabold text-slate-900 mb-6 leading-tight">${beat.title}</h1>
+              <p class="text-xl text-slate-500 max-w-2xl mx-auto font-light">${beat.subtitle}</p>
+            </div>
+          `;
+          break;
+        case 'center':
+          html = `
+            <div class="py-8 text-center">
+              <blockquote class="text-2xl md:text-3xl font-medium text-slate-800 italic mb-4 leading-relaxed">"${beat.content}"</blockquote>
+              <cite class="text-slate-400 font-normal not-italic">— ${beat.subcontent}</cite>
+            </div>
+          `;
+          break;
+        case 'stat':
+          html = `
+            <div class="bg-slate-50 border border-slate-100 p-8 rounded-3xl">
+              <span class="text-indigo-600 font-bold text-xs uppercase tracking-wider mb-2 block">${beat.label}</span>
+              <div class="text-5xl font-black text-slate-900 mb-4">${beat.value}</div>
+              <p class="text-slate-600 leading-relaxed">${beat.desc}</p>
+            </div>
+          `;
+          break;
+        case 'compare':
+          html = `
+            <div class="grid md:grid-cols-2 gap-6">
+              <div class="bg-white border border-slate-100 p-6 rounded-2xl shadow-sm">
+                <h3 class="font-bold text-slate-900 mb-4 flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-slate-300"></span> ${beat.left.title}
+                </h3>
+                <ul class="space-y-3">
+                  ${beat.left.items.map(i => `<li class="text-sm text-slate-600 flex items-start gap-2"><span>•</span> ${i}</li>`).join('')}
+                </ul>
+              </div>
+              <div class="bg-indigo-50 border border-indigo-100 p-6 rounded-2xl">
+                <h3 class="font-bold text-indigo-900 mb-4 flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-indigo-500"></span> ${beat.right.title}
+                </h3>
+                <ul class="space-y-3">
+                  ${beat.right.items.map(i => `<li class="text-sm text-indigo-700 flex items-start gap-2"><span>•</span> ${i}</li>`).join('')}
+                </ul>
+              </div>
+            </div>
+          `;
+          break;
+        case 'list':
+          html = `
+            <div class="space-y-6">
+              <h2 class="text-2xl font-bold text-slate-900">${beat.title}</h2>
+              <div class="space-y-4">
+                ${beat.items.map((item, idx) => `
+                  <div class="flex items-center gap-4 group">
+                    <span class="flex-none w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-sm group-hover:bg-indigo-600 group-hover:text-white transition-colors">${idx+1}</span>
+                    <p class="text-slate-700">${item}</p>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+          break;
+        case 'question':
+          html = `
+            <div class="bg-slate-900 p-8 rounded-3xl text-white">
+              <div class="text-indigo-400 font-bold text-xs uppercase tracking-widest mb-4">Question</div>
+              <h3 class="text-xl font-bold mb-6">${beat.q}</h3>
+              <div class="h-px bg-slate-800 mb-6"></div>
+              <p class="text-slate-300 leading-relaxed">${beat.a}</p>
+            </div>
+          `;
+          break;
+        case 'step':
+          html = `
+            <div class="space-y-6">
+              <h2 class="text-2xl font-bold text-slate-900">${beat.title}</h2>
+              <div class="grid gap-4">
+                ${beat.steps.map((s, idx) => `
+                  <div class="flex gap-6 p-4 rounded-2xl hover:bg-slate-50 transition-colors">
+                    <div class="text-4xl font-black text-slate-100">${idx+1}</div>
+                    <div>
+                      <h4 class="font-bold text-slate-900 mb-1">${s.t}</h4>
+                      <p class="text-sm text-slate-500">${s.d}</p>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+          break;
+        case 'section':
+          html = `
+            <div class="space-y-6">
+              <h2 class="text-2xl font-bold text-slate-900">${beat.title}</h2>
+              <div class="grid md:grid-cols-3 gap-4">
+                ${beat.items.map(item => `
+                  <div class="p-5 rounded-2xl bg-slate-50 border border-slate-100">
+                    <h4 class="font-bold text-indigo-600 text-sm mb-2">${item.h}</h4>
+                    <p class="text-xs text-slate-600 leading-normal">${item.b}</p>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+          break;
+        case 'callout':
+          html = `
+            <div class="bg-indigo-600 p-8 rounded-3xl text-white relative overflow-hidden">
+              <div class="relative z-10">
+                <h3 class="text-xs font-bold uppercase tracking-widest opacity-80 mb-2">${beat.title}</h3>
+                <p class="text-2xl font-bold leading-tight">${beat.content}</p>
+              </div>
+              <div class="absolute -right-8 -bottom-8 w-32 h-32 bg-white opacity-10 rounded-full"></div>
+            </div>
+          `;
+          break;
+        case 'tip':
+          html = `
+            <div class="bg-amber-50 border border-amber-100 p-6 rounded-2xl flex gap-4">
+              <span class="text-2xl">💡</span>
+              <div>
+                <h4 class="font-bold text-amber-900 mb-1">${beat.title}</h4>
+                <p class="text-sm text-amber-800 leading-relaxed">${beat.content}</p>
+              </div>
+            </div>
+          `;
+          break;
+        case 'end':
+          html = `
+            <div class="text-center py-12 space-y-8">
+              <div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+              </div>
+              <h2 class="text-3xl font-bold text-slate-900">${beat.title}</h2>
+              <div class="space-y-3 max-w-md mx-auto text-left">
+                ${beat.items.map(i => `<div class="flex items-center gap-3 text-slate-600"><span>•</span> ${i}</div>`).join('')}
+              </div>
+              <div class="pt-8">
+                <p class="text-indigo-600 font-bold">${beat.highlight}</p>
+              </div>
+            </div>
+          `;
+          break;
+      }
+      
+      div.innerHTML = html;
+      content.appendChild(div);
+      
+      // Force layout and animate
+      setTimeout(() => {
+        div.classList.remove('opacity-0');
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+      }, 50);
+    }
+
+    function updateProgress() {
+      const p = ((currentStep + 1) / beats.length) * 100;
+      progress.style.width = `${p}%`;
+      counter.innerText = `${currentStep + 1} / ${beats.length}`;
+      backBtn.classList.toggle('hidden', currentStep === 0);
+    }
+
+    function advance() {
+      if (currentStep < beats.length - 1) {
+        currentStep++;
+        renderBeat(beats[currentStep]);
+        updateProgress();
+      }
+    }
+
+    function goBack() {
+      if (currentStep > 0) {
+        content.removeChild(content.lastChild);
+        currentStep--;
+        updateProgress();
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+      }
+    }
+
+    // Initial render
+    renderBeat(beats[0]);
+    updateProgress();
+
+    // Event listeners
+    document.body.addEventListener('click', (e) => {
+      if (e.target.id === 'backBtn') return;
+      advance();
+    });
+
+    document.getElementById('backBtn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      goBack();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === ' ' || e.key === 'ArrowRight' || e.key === 'Enter') {
+        advance();
+      } else if (e.key === 'ArrowLeft') {
+        goBack();
+      }
+    });
+  </script>
+</body>
+</html>

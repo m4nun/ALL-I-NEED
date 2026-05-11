@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MBA Mastery: Artistic Timeline Dashboard</title>
+    <style>
+        :root {
+            --paper: #fdfaf6;
+            --ink: #2c3e50;
+            --accent-1: #4a90e2; /* Week 1 - Blue */
+            --accent-2: #e67e22; /* Week 2 - Orange */
+            --accent-3: #27ae60; /* Week 3 - Green */
+            --accent-4: #8e44ad; /* Week 4 - Purple */
+            --accent-5: #c0392b; /* Week 5 - Red */
+            --accent-6: #16a085; /* Week 6 - Teal */
+            --wash-opacity: 0.15;
+            --text-main: #34495e;
+            --transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background-color: var(--paper);
+            color: var(--text-main);
+            line-height: 1.8;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(74, 144, 226, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(230, 126, 34, 0.05) 0%, transparent 40%);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+            position: relative;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 6rem;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            color: var(--ink);
+            margin-bottom: 1rem;
+            font-weight: normal;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            font-style: italic;
+            color: #7f8c8d;
+            font-size: 1.2rem;
+        }
+
+        /* Timeline vertical line */
+        .timeline-line {
+            position: absolute;
+            left: 50%;
+            top: 250px;
+            bottom: 100px;
+            width: 2px;
+            background: linear-gradient(to bottom, transparent, #dcdde1 10%, #dcdde1 90%, transparent);
+            transform: translateX(-50%);
+            z-index: 1;
+        }
+
+        .week-node {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            width: 100%;
+            margin-bottom: 8rem;
+            position: relative;
+            z-index: 2;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: var(--transition);
+        }
+
+        .week-node.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .week-content {
+            width: 45%;
+            background: white;
+            padding: 2.5rem;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            position: relative;
+            cursor: pointer;
+            transition: var(--transition);
+            border-left: 6px solid var(--accent);
+        }
+
+        .week-content:hover {
+            transform: scale(1.01);
+            box-shadow: 0 15px 45px rgba(0,0,0,0.06);
+        }
+
+        .week-node:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .week-marker {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border: 2px solid #dcdde1;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            z-index: 3;
+            transition: var(--transition);
+            margin-top: 20px;
+        }
+
+        .week-node.active .week-marker {
+            border-color: var(--accent);
+            color: white;
+            background: var(--accent);
+            transform: scale(1.2);
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .week-title {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            color: var(--ink);
+        }
+
+        .week-goal {
+            font-size: 1rem;
+            color: #7f8c8d;
+            margin-bottom: 1.5rem;
+            line-height: 1.4;
+        }
+
+        .resource-btn {
+            display: inline-block;
+            padding: 0.6rem 1.2rem;
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            text-decoration: none;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            transition: var(--transition);
+            font-family: sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+
+        .resource-btn:hover {
+            background: var(--accent);
+            color: white;
+        }
+
+        /* Video Container */
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            height: 0;
+            overflow: hidden;
+            border-radius: 8px;
+            background: #eee;
+            margin-top: 1.5rem;
+            display: none;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .active .video-wrapper {
+            display: block;
+        }
+
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        /* Details section */
+        .details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height(0.8s) ease;
+            font-size: 0.95rem;
+            color: #576574;
+        }
+
+        .active .details {
+            max-height: 1000px; /* Large enough to fit video */
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #f1f2f6;
+        }
+
+        .wildcard-box {
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: #8395a7;
+            border-left: 2px solid var(--accent);
+            padding-left: 1rem;
+            background: rgba(0,0,0,0.02);
+            padding: 1rem;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .watercolor-wash {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 1.2s ease;
+        }
+
+        .active .watercolor-wash {
+            opacity: var(--wash-opacity);
+        }
+
+        footer {
+            text-align: center;
+            padding: 6rem 0;
+            color: #bdc3c7;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 800px) {
+            .timeline-line { left: 30px; }
+            .week-node, .week-node:nth-child(even) { flex-direction: row; justify-content: flex-start; }
+            .week-content { width: calc(100% - 100px); margin-left: 60px; padding: 1.5rem; }
+            .week-marker { width: 45px; height: 45px; font-size: 1rem; margin-top: 10px; }
+            h1 { font-size: 2.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>MBA Mastery</h1>
+        <p class="subtitle">A 6-Week Journey of Strategy & Systems</p>
+    </header>
+
+    <div class="timeline-line"></div>
+
+    <div id="timeline">
+        <!-- Week 1: Strategy -->
+        <div class="week-node" style="--accent: var(--accent-1)">
+            <div class="watercolor-wash" style="background: var(--accent-1); top: -100px; left: -150px;"></div>
+            <div class="week-content" onclick="toggleWeek(this)">
+                <h3 class="week-title">Strategy</h3>
+                <p class="week-goal">Master competitive advantage and business model design.</p>
+                <a href="https://www.youtube.com/playlist?list=PLUl4u3cNGP63CLq-GxVm4VSr-0iKAS-07" class="resource-btn" target="_blank" onclick="event.stopPropagation();">Start Lesson 1</a>
+                <div class="details">
+                    <p><strong>Exercise:</strong> Draft a value proposition and perform a SWOT analysis.</p>
+                    <div class="wildcard-box"><strong>Wildcard:</strong> First Principles Thinking - Breaking down complex problems into basic truths.</div>
+                    
+                    <div class="video-wrapper">
+                        <!-- Iframe will be injected here on expand -->
+                    </div>
+                </div>
+            </div>
+            <div class="week-marker">1</div>
+        </div>
+
+        <!-- Week 2: Marketing -->
+        <div class="week-node" style="--accent: var(--accent-2)">
+            <div class="watercolor-wash" style="background: var(--accent-2); top: -100px; right: -150px;"></div>
+            <div class="week-content" onclick="toggleWeek(this)">
+                <h3 class="week-title">Marketing</h3>
+                <p class="week-goal">Understand customer acquisition logic and digital funnels.</p>
+                <a href="https://www.youtube.com/playlist?list=PLmrZooTDUg_cn8zjg7S1dbfgfOnocpljY" class="resource-btn" target="_blank" onclick="event.stopPropagation();">Start Lesson 1</a>
+                <div class="details">
+                    <p><strong>Exercise:</strong> Map out a 3-stage customer journey from awareness to purchase.</p>
+                    <div class="wildcard-box"><strong>Wildcard:</strong> Dark Social Research - Understanding word-of-mouth in private channels.</div>
+                    
+                    <div class="video-wrapper"></div>
+                </div>
+            </div>
+            <div class="week-marker">2</div>
+        </div>
+
+        <!-- Week 3: Operations -->
+        <div class="week-node" style="--accent: var(--accent-3)">
+            <div class="watercolor-wash" style="background: var(--accent-3); top: -100px; left: -150px;"></div>
+            <div class="week-content" onclick="toggleWeek(this)">
+                <h3 class="week-title">Operations</h3>
+                <p class="week-goal">Build scalable processes and identify operational bottlenecks.</p>
+                <a href="https://www.youtube.com/playlist?list=PLOzRYVm0a65fnUjrixHsDhYRaJj1K_xqB" class="resource-btn" target="_blank" onclick="event.stopPropagation();">Start Lesson 1</a>
+                <div class="details">
+                    <p><strong>Exercise:</strong> Identify the primary bottleneck in your current workflow and propose a fix.</p>
+                    <div class="wildcard-box"><strong>Wildcard:</strong> Anti-fragile Systems - Building systems that thrive on volatility and stress.</div>
+                    
+                    <div class="video-wrapper"></div>
+                </div>
+            </div>
+            <div class="week-marker">3</div>
+        </div>
+
+        <!-- Week 4: Finance -->
+        <div class="week-node" style="--accent: var(--accent-4)">
+            <div class="watercolor-wash" style="background: var(--accent-4); top: -100px; right: -150px;"></div>
+            <div class="week-content" onclick="toggleWeek(this)">
+                <h3 class="week-title">Finance</h3>
+                <p class="week-goal">Learn to read financial dashboards and manage cash flow.</p>
+                <a href="https://www.youtube.com/playlist?list=PLUl4u3cNGP63B2lDhyKOsImI7FjCf6eDW" class="resource-btn" target="_blank" onclick="event.stopPropagation();">Start Lesson 1</a>
+                <div class="details">
+                    <p><strong>Exercise:</strong> Analyze an income statement and calculate your break-even point.</p>
+                    <div class="wildcard-box"><strong>Wildcard:</strong> Market Sentiment Tracking - Monitoring leading macroeconomic indicators.</div>
+                    
+                    <div class="video-wrapper"></div>
+                </div>
+            </div>
+            <div class="week-marker">4</div>
+        </div>
+
+        <!-- Week 5: Leadership -->
+        <div class="week-node" style="--accent: var(--accent-5)">
+            <div class="watercolor-wash" style="background: var(--accent-5); top: -100px; left: -150px;"></div>
+            <div class="week-content" onclick="toggleWeek(this)">
+                <h3 class="week-title">Leadership</h3>
+                <p class="week-goal">Develop high-performance teams and organizational culture.</p>
+                <a href="https://www.youtube.com/playlist?list=PL8dPuuaLjXtMBsfP-lP28IFvfkISqJofM" class="resource-btn" target="_blank" onclick="event.stopPropagation();">Start Lesson 1</a>
+                <div class="details">
+                    <p><strong>Exercise:</strong> Write a 5-point "Culture Code" for a team or project.</p>
+                    <div class="wildcard-box"><strong>Wildcard:</strong> Decentralized Management - Exploring autonomous leadership and flat structures.</div>
+                    
+                    <div class="video-wrapper"></div>
+                </div>
+            </div>
+            <div class="week-marker">5</div>
+        </div>
+
+        <!-- Week 6: Innovation -->
+        <div class="week-node" style="--accent: var(--accent-6)">
+            <div class="watercolor-wash" style="background: var(--accent-6); top: -100px; right: -150px;"></div>
+            <div class="week-content" onclick="toggleWeek(this)">
+                <h3 class="week-title">Innovation</h3>
+                <p class="week-goal">Synthesize all pillars and adapt to technological shifts like AI.</p>
+                <a href="https://www.youtube.com/playlist?list=PLUl4u3cNGP63G98fN_o5L95Wp_r6Iis5b" class="resource-btn" target="_blank" onclick="event.stopPropagation();">Start Lesson 1</a>
+                <div class="details">
+                    <p><strong>Exercise:</strong> Integrate all previous weeks into a 12-month growth strategy.</p>
+                    <div class="wildcard-box"><strong>Wildcard:</strong> Circular Economy - Models for sustainable resource management.</div>
+                    
+                    <div class="video-wrapper"></div>
+                </div>
+            </div>
+            <div class="week-marker">6</div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Curated for Burapat &bull; Strategy & Arts Mastery &bull; 2026</p>
+    </footer>
+</div>
+
+<script>
+    // Intersection Observer for scroll animation
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.2 });
+
+    document.querySelectorAll('.week-node').forEach(node => {
+        observer.observe(node);
+    });
+
+    // Convert a YouTube watch/playlist URL to an embeddable URL
+    function toEmbedUrl(href) {
+        try {
+            const url = new URL(href);
+            const videoId = url.searchParams.get('v');
+            const listId = url.searchParams.get('list');
+
+            // Playlist-only URL (e.g. youtube.com/playlist?list=XXX)
+            if (url.pathname === '/playlist' && listId) {
+                return `https://www.youtube.com/embed/videoseries?list=${listId}`;
+            }
+            // Watch URL with playlist (e.g. youtube.com/watch?v=XXX&list=YYY)
+            if (videoId && listId) {
+                return `https://www.youtube.com/embed/${videoId}?list=${listId}`;
+            }
+            // Plain watch URL (e.g. youtube.com/watch?v=XXX)
+            if (videoId) {
+                return `https://www.youtube.com/embed/${videoId}`;
+            }
+        } catch (e) {}
+        return null;
+    }
+
+    // Toggle expansion of week details and inject video
+    function toggleWeek(element) {
+        const node = element.parentElement;
+        const isActive = node.classList.contains('active');
+        const videoWrapper = node.querySelector('.video-wrapper');
+        const btn = node.querySelector('.resource-btn');
+        const embedUrl = btn ? toEmbedUrl(btn.href) : null;
+        
+        // Close other active nodes
+        document.querySelectorAll('.week-node').forEach(otherNode => {
+            if (otherNode !== node) {
+                otherNode.classList.remove('active');
+                const otherWrapper = otherNode.querySelector('.video-wrapper');
+                if (otherWrapper) {
+                    otherWrapper.innerHTML = '';
+                    otherWrapper.style.display = '';
+                }
+            }
+        });
+
+        // Toggle current node
+        node.classList.toggle('active');
+        
+        // Inject or Remove Iframe
+        if (!isActive) {
+            if (embedUrl) {
+                videoWrapper.style.display = 'block';
+                videoWrapper.innerHTML = `
+                    <iframe 
+                        src="${embedUrl}" 
+                        title="YouTube video player" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                        allowfullscreen>
+                    </iframe>
+                `;
+            } else {
+                videoWrapper.style.display = 'none';
+            }
+            
+            // Scroll it into better view
+            setTimeout(() => {
+                node.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 300);
+        } else {
+            // Closing: Clear Iframe to stop video
+            videoWrapper.innerHTML = '';
+            videoWrapper.style.display = '';
+        }
+    }
+
+</script>
+
+</body>
+</html>
