@@ -1,4 +1,0 @@
-interface:
-  display_name: "Vercel Production Release"
-  short_description: "Prepare, deploy, and verify production releases on Vercel."
-  default_prompt: "Use this skill to prepare a Next.js or web app for Vercel production, verify environment variables, deploy safely, inspect the live site, and document release evidence."

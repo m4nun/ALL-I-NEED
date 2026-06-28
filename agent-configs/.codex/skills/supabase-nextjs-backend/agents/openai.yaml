@@ -1,4 +1,0 @@
-interface:
-  display_name: "Supabase Next.js Backend"
-  short_description: "Build and harden Supabase in Next.js apps."
-  default_prompt: "Use this skill to design, implement, debug, or production-check Supabase auth, RLS policies, storage uploads, service-role routes, and schema migrations in a Next.js app."

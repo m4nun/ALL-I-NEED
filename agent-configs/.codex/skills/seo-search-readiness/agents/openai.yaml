@@ -1,4 +1,0 @@
-interface:
-  display_name: "SEO Search Readiness"
-  short_description: "Prepare web apps for clean search indexing."
-  default_prompt: "Use this skill to improve a website's SEO foundation, metadata, structured data, favicon/search branding, robots.txt, sitemap, and Google Search Console readiness."
