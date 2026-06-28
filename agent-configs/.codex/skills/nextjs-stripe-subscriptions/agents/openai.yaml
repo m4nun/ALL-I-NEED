@@ -1,0 +1,4 @@
+interface:
+  display_name: "Next.js Stripe Subscriptions"
+  short_description: "Implement and verify Stripe subscriptions in Next.js apps."
+  default_prompt: "Use this skill to add or debug Stripe checkout, billing portals, webhooks, plan mapping, and production payment verification in a Next.js app."

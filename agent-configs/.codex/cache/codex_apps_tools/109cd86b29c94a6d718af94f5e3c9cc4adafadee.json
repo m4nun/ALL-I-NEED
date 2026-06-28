@@ -1,0 +1,383 @@
+{
+  "schema_version": 3,
+  "tools": [
+    {
+      "server_name": "codex_apps",
+      "supports_parallel_tool_calls": false,
+      "server_origin": null,
+      "tool_name": "_open_diagram_app",
+      "tool_namespace": "codex_apps__blocks_and_arrows",
+      "namespace_description": "🎯 INFOGRAPHICS & VISUALIZATION 💾 DIAGRAMS, CHARTS + ANALYSIS 📊 For CODE: Database, UX, ERD, PlantUML! For Business & Data Analysis: Flowchart, Timeline & more!",
+      "tool": {
+        "name": "blocks and arrows_open_diagram_app",
+        "title": "open_diagram_app",
+        "description": "Open the Blocks & Arrows diagram application. Create diagrams with AI from text prompts, draw freely on a whiteboard canvas, view and manage your saved diagrams, and access your account. Your personal visual workspace for flowcharts, mind maps, sequences, and more.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        },
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "_meta": {
+          "openai/outputTemplate": "https://blocksandarrows.com/api/mcp/widgets/diagram-app/v/1.0.41",
+          "openai/toolInvocation/invoking": "Opening your diagram app...",
+          "openai/toolInvocation/invoked": "Diagram app ready!",
+          "resource_name": "Blocks and Arrows_open_diagram_app",
+          "_codex_apps": {
+            "resource_uri": "/asdk_app_69456127541c81919578c130c117094d/link_6a2120ab2b0c81919e4d48af4abd7782/open_diagram_app",
+            "contains_mcp_source": true
+          },
+          "connector_id": "asdk_app_69456127541c81919578c130c117094d",
+          "connector_name": "Blocks and Arrows",
+          "connector_description": "🎯 INFOGRAPHICS & VISUALIZATION 💾 DIAGRAMS, CHARTS + ANALYSIS 📊 For CODE: Database, UX, ERD, PlantUML! For Business & Data Analysis: Flowchart, Timeline & more!",
+          "link_id": "link_6a2120ab2b0c81919e4d48af4abd7782",
+          "link_is_implicit": false
+        }
+      },
+      "connector_id": "asdk_app_69456127541c81919578c130c117094d",
+      "connector_name": "Blocks and Arrows",
+      "plugin_display_names": []
+    },
+    {
+      "server_name": "codex_apps",
+      "supports_parallel_tool_calls": false,
+      "server_origin": null,
+      "tool_name": "_mcp_generate_diagram",
+      "tool_namespace": "codex_apps__blocks_and_arrows",
+      "namespace_description": "🎯 INFOGRAPHICS & VISUALIZATION 💾 DIAGRAMS, CHARTS + ANALYSIS 📊 For CODE: Database, UX, ERD, PlantUML! For Business & Data Analysis: Flowchart, Timeline & more!",
+      "tool": {
+        "name": "blocks and arrows_mcp_generate_diagram",
+        "title": "mcp_generate_diagram",
+        "description": "DO NOT CALL DIRECTLY. Internal widget tool for AI diagram generation. Use open_diagram_app instead.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "prompt": {
+              "type": "string",
+              "description": "What diagram to create"
+            },
+            "diagramType": {
+              "type": "string",
+              "description": "Type of diagram",
+              "enum": [
+                "graph",
+                "mindmap",
+                "sequence",
+                "entity-relationship",
+                "pie-chart",
+                "timeline",
+                "class",
+                "band"
+              ]
+            }
+          },
+          "required": [
+            "prompt"
+          ]
+        },
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "_meta": {
+          "resource_name": "Blocks and Arrows_mcp_generate_diagram",
+          "_codex_apps": {
+            "resource_uri": "/asdk_app_69456127541c81919578c130c117094d/link_6a2120ab2b0c81919e4d48af4abd7782/mcp_generate_diagram",
+            "contains_mcp_source": true
+          },
+          "connector_id": "asdk_app_69456127541c81919578c130c117094d",
+          "connector_name": "Blocks and Arrows",
+          "connector_description": "🎯 INFOGRAPHICS & VISUALIZATION 💾 DIAGRAMS, CHARTS + ANALYSIS 📊 For CODE: Database, UX, ERD, PlantUML! For Business & Data Analysis: Flowchart, Timeline & more!",
+          "link_id": "link_6a2120ab2b0c81919e4d48af4abd7782",
+          "link_is_implicit": false
+        }
+      },
+      "connector_id": "asdk_app_69456127541c81919578c130c117094d",
+      "connector_name": "Blocks and Arrows",
+      "plugin_display_names": []
+    },
+    {
+      "server_name": "codex_apps",
+      "supports_parallel_tool_calls": false,
+      "server_origin": null,
+      "tool_name": "_mcp_get_diagrams",
+      "tool_namespace": "codex_apps__blocks_and_arrows",
+      "namespace_description": "🎯 INFOGRAPHICS & VISUALIZATION 💾 DIAGRAMS, CHARTS + ANALYSIS 📊 For CODE: Database, UX, ERD, PlantUML! For Business & Data Analysis: Flowchart, Timeline & more!",
+      "tool": {
+        "name": "blocks and arrows_mcp_get_diagrams",
+        "title": "mcp_get_diagrams",
+        "description": "DO NOT CALL DIRECTLY. Internal widget tool for fetching user diagrams. Use open_diagram_app instead.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "limit": {
+              "type": "number",
+              "description": "Max number of diagrams to return"
+            }
+          },
+          "required": []
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "_meta": {
+          "resource_name": "Blocks and Arrows_mcp_get_diagrams",
+          "_codex_apps": {
+            "resource_uri": "/asdk_app_69456127541c81919578c130c117094d/link_6a2120ab2b0c81919e4d48af4abd7782/mcp_get_diagrams",
+            "contains_mcp_source": true
+          },
+          "connector_id": "asdk_app_69456127541c81919578c130c117094d",
+          "connector_name": "Blocks and Arrows",
+          "connector_description": "🎯 INFOGRAPHICS & VISUALIZATION 💾 DIAGRAMS, CHARTS + ANALYSIS 📊 For CODE: Database, UX, ERD, PlantUML! For Business & Data Analysis: Flowchart, Timeline & more!",
+          "link_id": "link_6a2120ab2b0c81919e4d48af4abd7782",
+          "link_is_implicit": false
+        }
+      },
+      "connector_id": "asdk_app_69456127541c81919578c130c117094d",
+      "connector_name": "Blocks and Arrows",
+      "plugin_display_names": []
+    },
+    {
+      "server_name": "codex_apps",
+      "supports_parallel_tool_calls": false,
+      "server_origin": null,
+      "tool_name": "_mcp_get_diagram_content",
+      "tool_namespace": "codex_apps__blocks_and_arrows",
+      "namespace_description": "🎯 INFOGRAPHICS & VISUALIZATION 💾 DIAGRAMS, CHARTS + ANALYSIS 📊 For CODE: Database, UX, ERD, PlantUML! For Business & Data Analysis: Flowchart, Timeline & more!",
+      "tool": {
+        "name": "blocks and arrows_mcp_get_diagram_content",
+        "title": "mcp_get_diagram_content",
+        "description": "DO NOT CALL DIRECTLY. Internal widget tool to load diagram content for in-app editor. Use open_diagram_app instead.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "diagramLink": {
+              "type": "string",
+              "description": "Link/slug of the diagram to open"
+            }
+          },
+          "required": [
+            "diagramLink"
+          ]
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "_meta": {
+          "resource_name": "Blocks and Arrows_mcp_get_diagram_content",
+          "_codex_apps": {
+            "resource_uri": "/asdk_app_69456127541c81919578c130c117094d/link_6a2120ab2b0c81919e4d48af4abd7782/mcp_get_diagram_content",
+            "contains_mcp_source": true
+          },
+          "connector_id": "asdk_app_69456127541c81919578c130c117094d",
+          "connector_name": "Blocks and Arrows",
+          "connector_description": "🎯 INFOGRAPHICS & VISUALIZATION 💾 DIAGRAMS, CHARTS + ANALYSIS 📊 For CODE: Database, UX, ERD, PlantUML! For Business & Data Analysis: Flowchart, Timeline & more!",
+          "link_id": "link_6a2120ab2b0c81919e4d48af4abd7782",
+          "link_is_implicit": false
+        }
+      },
+      "connector_id": "asdk_app_69456127541c81919578c130c117094d",
+      "connector_name": "Blocks and Arrows",
+      "plugin_display_names": []
+    },
+    {
+      "server_name": "codex_apps",
+      "supports_parallel_tool_calls": false,
+      "server_origin": null,
+      "tool_name": "_mcp_delete_diagram",
+      "tool_namespace": "codex_apps__blocks_and_arrows",
+      "namespace_description": "🎯 INFOGRAPHICS & VISUALIZATION 💾 DIAGRAMS, CHARTS + ANALYSIS 📊 For CODE: Database, UX, ERD, PlantUML! For Business & Data Analysis: Flowchart, Timeline & more!",
+      "tool": {
+        "name": "blocks and arrows_mcp_delete_diagram",
+        "title": "mcp_delete_diagram",
+        "description": "DO NOT CALL DIRECTLY. Internal widget tool for deleting diagrams. Use open_diagram_app instead.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "diagramId": {
+              "type": "string",
+              "description": "ID of diagram to delete"
+            }
+          },
+          "required": [
+            "diagramId"
+          ]
+        },
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": true,
+          "openWorldHint": false
+        },
+        "_meta": {
+          "resource_name": "Blocks and Arrows_mcp_delete_diagram",
+          "_codex_apps": {
+            "resource_uri": "/asdk_app_69456127541c81919578c130c117094d/link_6a2120ab2b0c81919e4d48af4abd7782/mcp_delete_diagram",
+            "contains_mcp_source": true
+          },
+          "connector_id": "asdk_app_69456127541c81919578c130c117094d",
+          "connector_name": "Blocks and Arrows",
+          "connector_description": "🎯 INFOGRAPHICS & VISUALIZATION 💾 DIAGRAMS, CHARTS + ANALYSIS 📊 For CODE: Database, UX, ERD, PlantUML! For Business & Data Analysis: Flowchart, Timeline & more!",
+          "link_id": "link_6a2120ab2b0c81919e4d48af4abd7782",
+          "link_is_implicit": false
+        }
+      },
+      "connector_id": "asdk_app_69456127541c81919578c130c117094d",
+      "connector_name": "Blocks and Arrows",
+      "plugin_display_names": []
+    },
+    {
+      "server_name": "codex_apps",
+      "supports_parallel_tool_calls": false,
+      "server_origin": null,
+      "tool_name": "_mcp_get_user_info",
+      "tool_namespace": "codex_apps__blocks_and_arrows",
+      "namespace_description": "🎯 INFOGRAPHICS & VISUALIZATION 💾 DIAGRAMS, CHARTS + ANALYSIS 📊 For CODE: Database, UX, ERD, PlantUML! For Business & Data Analysis: Flowchart, Timeline & more!",
+      "tool": {
+        "name": "blocks and arrows_mcp_get_user_info",
+        "title": "mcp_get_user_info",
+        "description": "DO NOT CALL DIRECTLY. Internal widget tool for user info. Use open_diagram_app instead.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {},
+          "required": []
+        },
+        "annotations": {
+          "readOnlyHint": true,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "_meta": {
+          "resource_name": "Blocks and Arrows_mcp_get_user_info",
+          "_codex_apps": {
+            "resource_uri": "/asdk_app_69456127541c81919578c130c117094d/link_6a2120ab2b0c81919e4d48af4abd7782/mcp_get_user_info",
+            "contains_mcp_source": true
+          },
+          "connector_id": "asdk_app_69456127541c81919578c130c117094d",
+          "connector_name": "Blocks and Arrows",
+          "connector_description": "🎯 INFOGRAPHICS & VISUALIZATION 💾 DIAGRAMS, CHARTS + ANALYSIS 📊 For CODE: Database, UX, ERD, PlantUML! For Business & Data Analysis: Flowchart, Timeline & more!",
+          "link_id": "link_6a2120ab2b0c81919e4d48af4abd7782",
+          "link_is_implicit": false
+        }
+      },
+      "connector_id": "asdk_app_69456127541c81919578c130c117094d",
+      "connector_name": "Blocks and Arrows",
+      "plugin_display_names": []
+    },
+    {
+      "server_name": "codex_apps",
+      "supports_parallel_tool_calls": false,
+      "server_origin": null,
+      "tool_name": "_mcp_save_diagram",
+      "tool_namespace": "codex_apps__blocks_and_arrows",
+      "namespace_description": "🎯 INFOGRAPHICS & VISUALIZATION 💾 DIAGRAMS, CHARTS + ANALYSIS 📊 For CODE: Database, UX, ERD, PlantUML! For Business & Data Analysis: Flowchart, Timeline & more!",
+      "tool": {
+        "name": "blocks and arrows_mcp_save_diagram",
+        "title": "mcp_save_diagram",
+        "description": "DO NOT CALL DIRECTLY. Internal widget tool for saving diagram changes. Use open_diagram_app instead.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "diagramLink": {
+              "type": "string",
+              "description": "Link/slug of the diagram to save"
+            },
+            "elementsJson": {
+              "type": "string",
+              "description": "JSON string of Excalidraw elements and files"
+            },
+            "svgString": {
+              "type": "string",
+              "description": "SVG preview string"
+            }
+          },
+          "required": [
+            "diagramLink",
+            "elementsJson"
+          ]
+        },
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": true,
+          "openWorldHint": false
+        },
+        "_meta": {
+          "resource_name": "Blocks and Arrows_mcp_save_diagram",
+          "_codex_apps": {
+            "resource_uri": "/asdk_app_69456127541c81919578c130c117094d/link_6a2120ab2b0c81919e4d48af4abd7782/mcp_save_diagram",
+            "contains_mcp_source": true
+          },
+          "connector_id": "asdk_app_69456127541c81919578c130c117094d",
+          "connector_name": "Blocks and Arrows",
+          "connector_description": "🎯 INFOGRAPHICS & VISUALIZATION 💾 DIAGRAMS, CHARTS + ANALYSIS 📊 For CODE: Database, UX, ERD, PlantUML! For Business & Data Analysis: Flowchart, Timeline & more!",
+          "link_id": "link_6a2120ab2b0c81919e4d48af4abd7782",
+          "link_is_implicit": false
+        }
+      },
+      "connector_id": "asdk_app_69456127541c81919578c130c117094d",
+      "connector_name": "Blocks and Arrows",
+      "plugin_display_names": []
+    },
+    {
+      "server_name": "codex_apps",
+      "supports_parallel_tool_calls": false,
+      "server_origin": null,
+      "tool_name": "_mcp_create_diagram",
+      "tool_namespace": "codex_apps__blocks_and_arrows",
+      "namespace_description": "🎯 INFOGRAPHICS & VISUALIZATION 💾 DIAGRAMS, CHARTS + ANALYSIS 📊 For CODE: Database, UX, ERD, PlantUML! For Business & Data Analysis: Flowchart, Timeline & more!",
+      "tool": {
+        "name": "blocks and arrows_mcp_create_diagram",
+        "title": "mcp_create_diagram",
+        "description": "DO NOT CALL DIRECTLY. Internal widget tool for creating diagrams from free drawing. Use open_diagram_app instead.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "elementsJson": {
+              "type": "string",
+              "description": "JSON string of Excalidraw elements and files"
+            },
+            "svgString": {
+              "type": "string",
+              "description": "SVG preview string"
+            },
+            "title": {
+              "type": "string",
+              "description": "Optional title for the diagram"
+            }
+          },
+          "required": [
+            "elementsJson"
+          ]
+        },
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "openWorldHint": false
+        },
+        "_meta": {
+          "resource_name": "Blocks and Arrows_mcp_create_diagram",
+          "_codex_apps": {
+            "resource_uri": "/asdk_app_69456127541c81919578c130c117094d/link_6a2120ab2b0c81919e4d48af4abd7782/mcp_create_diagram",
+            "contains_mcp_source": true
+          },
+          "connector_id": "asdk_app_69456127541c81919578c130c117094d",
+          "connector_name": "Blocks and Arrows",
+          "connector_description": "🎯 INFOGRAPHICS & VISUALIZATION 💾 DIAGRAMS, CHARTS + ANALYSIS 📊 For CODE: Database, UX, ERD, PlantUML! For Business & Data Analysis: Flowchart, Timeline & more!",
+          "link_id": "link_6a2120ab2b0c81919e4d48af4abd7782",
+          "link_is_implicit": false
+        }
+      },
+      "connector_id": "asdk_app_69456127541c81919578c130c117094d",
+      "connector_name": "Blocks and Arrows",
+      "plugin_display_names": []
+    }
+  ]
+}

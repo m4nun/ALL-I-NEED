@@ -1,0 +1,4 @@
+interface:
+  display_name: "Document RAG Chat"
+  short_description: "Build document-grounded chat apps."
+  default_prompt: "Use this skill to build or debug document upload, parsing, chunking, embeddings, vector retrieval, and source-grounded chat in a web app."
